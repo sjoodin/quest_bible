@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
-import 'package:quest_bible/features/bible/application/providers/chapter_verses_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
+import 'package:quest_bible/features/bible/presentation/widgets/chapter_content.dart';
 import 'package:quest_bible/shared/widgets/async_value_view.dart';
-import 'package:quest_bible/features/bible/presentation/widgets/verse_tile.dart';
 
 class BiblePage extends ConsumerWidget {
   const BiblePage({super.key});
@@ -14,7 +13,6 @@ class BiblePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(bookListProvider);
-    final versesAsync = ref.watch(chapterVersesProvider);
     final selectedBookNumber = ref.watch(selectedBookProvider);
     final selectedChapter = ref.watch(currentChapterProvider);
 
@@ -91,20 +89,7 @@ class BiblePage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Expanded(
-            child: AsyncValueView(
-              value: versesAsync,
-              data: (verses) {
-                return ListView.separated(
-                  itemCount: verses.length,
-                  itemBuilder: (context, index) {
-                    return VerseTile(verse: verses[index]);
-                  },
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                );
-              },
-            ),
-          ),
+          const Expanded(child: ChapterContent()),
         ],
       ),
     );
