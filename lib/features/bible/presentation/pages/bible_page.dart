@@ -66,7 +66,7 @@ class BiblePage extends ConsumerWidget {
                     ),
                     const SizedBox(width: 12),
                     SizedBox(
-                      width: 120,
+                      width: 85,
                       child: DropdownButtonFormField<int>(
                         initialValue: selectedChapter,
                         decoration: const InputDecoration(
