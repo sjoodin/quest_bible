@@ -28,6 +28,10 @@ class BiblePage extends ConsumerWidget {
             child: AsyncValueView<List<Book>>(
               value: booksAsync,
               data: (books) {
+                if (books.isEmpty) {
+                  return const Center(child: Text('No books available'));
+                }
+
                 final selectedBook = books.firstWhere(
                   (book) => book.number == selectedBookNumber,
                   orElse: () => books.first,
