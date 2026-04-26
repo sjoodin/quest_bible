@@ -9,9 +9,13 @@ class QuestBibleApp extends StatelessWidget {
     return MaterialApp(
       title: 'Quest Bible',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 232, 132, 11),
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const BiblePage(),
     );
   }

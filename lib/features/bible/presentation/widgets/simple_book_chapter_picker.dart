@@ -31,6 +31,7 @@ class SimpleBookChapterPicker extends ConsumerWidget {
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
+                style: const TextStyle(fontSize: 14),
                 initialValue: selectedBook.number,
                 decoration: const InputDecoration(
                   labelText: 'Book',
@@ -52,8 +53,9 @@ class SimpleBookChapterPicker extends ConsumerWidget {
             ),
             const SizedBox(width: 12),
             SizedBox(
-              width: 85,
+              width: 80,
               child: DropdownButtonFormField<int>(
+                style: const TextStyle(fontSize: 14),
                 initialValue: selectedChapter,
                 decoration: const InputDecoration(
                   labelText: 'Chapter',

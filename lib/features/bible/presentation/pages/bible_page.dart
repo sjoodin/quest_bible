@@ -24,7 +24,6 @@ class BiblePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Expanded(child: ChapterContent()),
-                  const SafeArea(child: SizedBox.shrink()),
                 ],
               ),
             ),
