@@ -35,6 +35,15 @@ class SimpleBookChapterPicker extends ConsumerWidget {
           (book) => book.number == selectedBookValue,
           orElse: () => books.first,
         );
+        final clampedChapterValue = selectedChapterValue > selectedBook.chapterCount
+            ? 1
+            : selectedChapterValue;
+
+        if (clampedChapterValue != selectedChapterValue) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.read(currentChapterProvider.notifier).setChapter(1);
+          });
+        }
 
         return Row(
           children: [
@@ -65,7 +74,7 @@ class SimpleBookChapterPicker extends ConsumerWidget {
               width: 80,
               child: DropdownButtonFormField<int>(
                 style: const TextStyle(fontSize: 14),
-                initialValue: selectedChapterValue,
+                initialValue: clampedChapterValue,
                 decoration: const InputDecoration(
                   labelText: 'Chapter',
                   border: OutlineInputBorder(),

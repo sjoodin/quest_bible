@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quest_bible/features/bible/application/providers/bible_repository_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/shared_preferences_provider.dart';
@@ -14,8 +15,18 @@ Future<List<Verse>> chapterVerses(Ref ref) async {
   final prefs = await ref.watch(sharedPreferencesProvider.future);
   final book = await ref.watch(selectedBookProvider.future);
   final chapter = await ref.watch(currentChapterProvider.future);
+  final books = await ref.watch(bookListProvider.future);
+  final selectedBook = books.firstWhere(
+    (item) => item.number == book,
+    orElse: () => books.first,
+  );
+  final effectiveChapter = chapter > selectedBook.chapterCount ? 1 : chapter;
 
-  final cacheKey = chapterVersesCacheKey(book: book, chapter: chapter);
+  if (effectiveChapter != chapter) {
+    await ref.read(currentChapterProvider.notifier).setChapter(1);
+  }
+
+  final cacheKey = chapterVersesCacheKey(book: book, chapter: effectiveChapter);
   final cachedVerses = decodeVerses(prefs.getString(cacheKey));
   if (cachedVerses != null) {
     await prefs.setString(
@@ -27,7 +38,7 @@ Future<List<Verse>> chapterVerses(Ref ref) async {
 
   final verses = await repository.getVerses(
     bookNumber: book,
-    chapterNumber: chapter,
+    chapterNumber: effectiveChapter,
   );
   final encodedVerses = encodeVerses(verses);
   await prefs.setString(cacheKey, encodedVerses);
