@@ -15,6 +15,12 @@ class BiblePage extends StatefulWidget {
 class _BiblePageState extends State<BiblePage> {
   BibleSection? _activeSection;
 
+  void _closeSection() {
+    setState(() {
+      _activeSection = null;
+    });
+  }
+
   void _toggleSection(BibleSection section) {
     setState(() {
       if (_activeSection?.id == section.id) {
@@ -53,7 +59,12 @@ class _BiblePageState extends State<BiblePage> {
               Row(
                 children: [
                   LeftSideSections(onSectionPressed: _toggleSection),
-                  Expanded(child: BibleSectionView(section: _activeSection!)),
+                  Expanded(
+                    child: BibleSectionView(
+                      section: _activeSection!,
+                      onClose: _closeSection,
+                    ),
+                  ),
                 ],
               ),
           ],

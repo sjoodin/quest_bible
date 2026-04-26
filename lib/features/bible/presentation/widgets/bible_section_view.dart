@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
 
 class BibleSectionView extends ConsumerWidget {
-  const BibleSectionView({super.key, required this.section});
+  const BibleSectionView({super.key, required this.section, this.onClose});
 
   final BibleSection section;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,6 +26,19 @@ class BibleSectionView extends ConsumerWidget {
                 final booksByCode = <String, Book>{
                   for (final book in books) book.code: book,
                 };
+
+                Future<void> onChapterSelected(
+                  String bookCode,
+                  int chapter,
+                ) async {
+                  await ref
+                      .read(selectedBookProvider.notifier)
+                      .setBook(bookCode);
+                  await ref
+                      .read(currentChapterProvider.notifier)
+                      .setChapter(chapter);
+                  onClose?.call();
+                }
 
                 return SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
@@ -40,6 +56,7 @@ class BibleSectionView extends ConsumerWidget {
                         booksByCode,
                         section.titleColor,
                         constraints.maxWidth - 20,
+                        onChapterSelected,
                       ),
                     ),
                   ),
@@ -65,19 +82,25 @@ List<Widget> _buildBookRows(
   Map<String, Book> booksByCode,
   Color titleColor,
   double availableWidth,
+  Future<void> Function(String bookCode, int chapterNumber) onChapterSelected,
 ) {
   const maxGroupChapters = 9;
   final rows = <Widget>[];
   var i = 0;
 
-  _SectionBookChapters buildSection(String code, {required bool addEmptyBlock}) {
+  _SectionBookChapters buildSection(
+    String code, {
+    required bool addEmptyBlock,
+  }) {
     return _SectionBookChapters(
+      bookCode: code,
       title: booksByCode[code]?.name ?? code,
       titleColor: titleColor,
       chapterCount: booksByCode[code]?.chapterCount ?? 0,
       columnWidth: availableWidth,
       itemWidth: availableWidth,
       addEmptyBlock: addEmptyBlock,
+      onChapterSelected: onChapterSelected,
     );
   }
 
@@ -87,7 +110,9 @@ List<Widget> _buildBookRows(
 
     final hasNext = i + 1 < bookCodes.length;
     final nextCode = hasNext ? bookCodes[i + 1] : null;
-    final nextCount = nextCode != null ? (booksByCode[nextCode]?.chapterCount ?? 0) : 0;
+    final nextCount = nextCode != null
+        ? (booksByCode[nextCode]?.chapterCount ?? 0)
+        : 0;
     final canPair = hasNext && (currentCount + nextCount) <= maxGroupChapters;
 
     if (canPair && nextCode != null) {
@@ -115,19 +140,24 @@ List<Widget> _buildBookRows(
 
 class _SectionBookChapters extends StatelessWidget {
   const _SectionBookChapters({
+    required this.bookCode,
     required this.title,
     required this.titleColor,
     required this.chapterCount,
     required this.columnWidth,
     required this.itemWidth,
+    required this.onChapterSelected,
     this.addEmptyBlock = false,
   });
 
+  final String bookCode;
   final String title;
   final Color titleColor;
   final int chapterCount;
   final double columnWidth;
   final double itemWidth;
+  final Future<void> Function(String bookCode, int chapterNumber)
+  onChapterSelected;
   final bool addEmptyBlock;
 
   @override
@@ -171,20 +201,11 @@ class _SectionBookChapters extends StatelessWidget {
                   return SizedBox(
                     width: itemSize,
                     height: itemSize,
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        border: Border.all(color: Colors.white, width: 1),
-                      ),
-                      child: Text(
-                        '$chapterNumber',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                    child: _ChapterBox(
+                      chapterNumber: chapterNumber,
+                      onTap: () async {
+                        await onChapterSelected(bookCode, chapterNumber);
+                      },
                     ),
                   );
                 }),
@@ -196,6 +217,70 @@ class _SectionBookChapters extends StatelessWidget {
               style: TextStyle(color: Colors.white70),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _ChapterBox extends StatefulWidget {
+  const _ChapterBox({required this.chapterNumber, required this.onTap});
+
+  final int chapterNumber;
+  final Future<void> Function() onTap;
+
+  @override
+  State<_ChapterBox> createState() => _ChapterBoxState();
+}
+
+class _ChapterBoxState extends State<_ChapterBox> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = Colors.white.withValues(alpha: 0.08);
+    final hoverColor = Colors.white.withValues(alpha: 0.16);
+    final pressedColor = const Color.fromARGB(255, 255, 0, 0);
+
+    final backgroundColor = _isPressed
+        ? pressedColor
+        : (_isHovered ? hoverColor : baseColor);
+    final borderWidth = _isPressed ? 1.5 : 1.0;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: widget.onTap,
+        onHover: (value) {
+          if (_isHovered != value) {
+            setState(() {
+              _isHovered = value;
+            });
+          }
+        },
+        onHighlightChanged: (value) {
+          if (_isPressed != value) {
+            setState(() {
+              _isPressed = value;
+            });
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(color: Colors.white, width: borderWidth),
+          ),
+          child: Text(
+            '${widget.chapterNumber}',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: _isPressed ? FontWeight.w700 : FontWeight.w600,
+            ),
+          ),
+        ),
       ),
     );
   }
