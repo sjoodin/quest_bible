@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:quest_bible/app/app.dart';
+import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/shared_preferences_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/startup_chapter_cache_provider.dart';
 import 'package:quest_bible/features/bible/application/verse_cache.dart';
@@ -27,12 +28,20 @@ Future<void> main() async {
           verses: cachedVerses,
         );
 
+  final container = ProviderContainer(
+    overrides: [
+      sharedPreferencesProvider.overrideWith((ref) async => prefs),
+      startupChapterCacheProvider.overrideWithValue(startupCache),
+    ],
+  );
+
+  // Pre-warm the book list so it is ready before the user opens BibleSectionView.
+  // ignore: discarded_futures
+  container.read(bookListProvider.future);
+
   runApp(
-    ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWith((ref) async => prefs),
-        startupChapterCacheProvider.overrideWithValue(startupCache),
-      ],
+    UncontrolledProviderScope(
+      container: container,
       child: const QuestBibleApp(),
     ),
   );
