@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 
 class LeftSideSections extends StatelessWidget {
-  const LeftSideSections({super.key});
+  const LeftSideSections({super.key, required this.onSectionPressed});
+
+  final ValueChanged<BibleSection> onSectionPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +21,7 @@ class LeftSideSections extends StatelessWidget {
             return BibleSectionButton(
               sectionHeight: sectionHeight,
               section: section,
+              onPressed: () => onSectionPressed(section),
             );
           }),
         );
@@ -32,15 +35,17 @@ class BibleSectionButton extends StatelessWidget {
     super.key,
     required this.sectionHeight,
     required this.section,
+    required this.onPressed,
   });
 
   final double sectionHeight;
   final BibleSection section;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onPressed,
       child: Container(width: 25, height: sectionHeight, color: section.color),
     );
   }
