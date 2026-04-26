@@ -62,7 +62,7 @@ class ChapterHeader extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       decoration: BoxDecoration(
-        color: (sectionColor ?? colorScheme.surface).withValues(alpha: 0.5),
+        color: (sectionColor ?? colorScheme.surface),
         border: Border(
           bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),

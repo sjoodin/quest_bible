@@ -19,7 +19,7 @@ class BibleSection {
 const List<BibleSection> bibleSections = [
   BibleSection(
     id: 'section_1',
-    color: Color(0xFFA5D6A7),
+    color: Color(0xFF66BB6A),
     titleColor: Color.fromARGB(255, 68, 168, 74),
     name: 'Moseböckerna',
     bookCodes: <String>[
@@ -32,7 +32,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_2',
-    color: Color(0xFF66BB6A),
+    color: Color(0xFF43A047),
     titleColor: Color(0xFF2E7D32),
     name: 'Historiska böckerna 1',
     bookCodes: <String>[
@@ -46,7 +46,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_3',
-    color: Color(0xFF43A047),
+    color: Color(0xFF2E7D32),
     titleColor: Color(0xFF1B5E20),
     name: 'Historiska böckerna 2',
     bookCodes: <String>[
@@ -58,13 +58,6 @@ const List<BibleSection> bibleSections = [
       'EST', // Esther
     ],
   ),
-  // BibleSection(
-  //   id: 'section_4',
-  //   color: Color(0xFF2E7D32),
-  //   titleColor: Color(0xFF0B3D0B),
-  //   name: 'Historiska böckerna 3',
-  //   bookCodes: <String>[],
-  // ),
   BibleSection(
     id: 'section_5',
     color: Color(0xFF2196F3),

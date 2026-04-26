@@ -83,6 +83,7 @@ class _LeftSideSectionsState extends State<LeftSideSections> {
               return BibleSectionButton(
                 sectionHeight: sectionHeight,
                 section: section,
+                isActive: _activePointer != null,
               );
             }),
           ),
@@ -97,17 +98,22 @@ class BibleSectionButton extends StatelessWidget {
     super.key,
     required this.sectionHeight,
     required this.section,
+    required this.isActive,
   });
 
   final double sectionHeight;
   final BibleSection section;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: _sectionStripWidth,
-      height: sectionHeight,
-      color: section.color,
+    return Opacity(
+      opacity: isActive ? 1.0 : 0.5,
+      child: Container(
+        width: _sectionStripWidth,
+        height: sectionHeight,
+        color: section.color,
+      ),
     );
   }
 }

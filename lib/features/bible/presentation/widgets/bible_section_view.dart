@@ -8,6 +8,7 @@ import 'package:quest_bible/features/bible/application/providers/current_chapter
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
+import 'package:quest_bible/features/bible/presentation/utils.dart';
 
 class BibleSectionView extends ConsumerWidget {
   const BibleSectionView({
@@ -65,7 +66,7 @@ class BibleSectionView extends ConsumerWidget {
                       children: _buildBookRows(
                         section.bookCodes,
                         booksByCode,
-                        section.titleColor,
+                        darken(section.color, 0.1),
                         constraints.maxWidth - 20,
                         onChapterSelected,
                         isChapterTouchArmed,
