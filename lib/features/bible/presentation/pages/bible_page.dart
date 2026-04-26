@@ -54,12 +54,7 @@ class _BiblePageState extends State<BiblePage> {
                 Expanded(
                   child: Column(
                     children: [
-                      const SizedBox(height: 12),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        //child: SimpleBookChapterPicker(),
-                        child: ChapterTitle(),
-                      ),
+                      ChapterHeader(),
                       const SizedBox(height: 8),
                       const Expanded(child: ChapterContent()),
                     ],

@@ -5,8 +5,8 @@ import 'package:quest_bible/features/bible/application/providers/current_chapter
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 
-class ChapterTitle extends ConsumerWidget {
-  const ChapterTitle({super.key});
+class ChapterHeader extends ConsumerWidget {
+  const ChapterHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,15 +60,20 @@ class ChapterTitle extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       decoration: BoxDecoration(
-        color: sectionColor ?? colorScheme.surface,
+        color: (sectionColor ?? colorScheme.surface).withValues(alpha: 0.5),
         border: Border(
           bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            color: const Color.fromARGB(
+              255,
+              75,
+              75,
+              75,
+            ).withValues(alpha: 0.18),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
