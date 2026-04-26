@@ -32,7 +32,7 @@ class ChapterContent extends ConsumerWidget {
             startupCache != null &&
             selectedBook != null &&
             selectedChapter != null &&
-            startupCache.bookNumber == selectedBook &&
+            startupCache.bookCode == selectedBook &&
             startupCache.chapterNumber == selectedChapter;
 
         if (cacheMatchesSelection) {

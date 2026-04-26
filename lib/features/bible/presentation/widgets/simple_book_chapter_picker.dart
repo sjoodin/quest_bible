@@ -12,15 +12,15 @@ class SimpleBookChapterPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(bookListProvider);
-    final selectedBookNumber = ref.watch(selectedBookProvider);
+    final selectedBookCode = ref.watch(selectedBookProvider);
     final selectedChapter = ref.watch(currentChapterProvider);
 
     return AsyncValueView<List<Book>>(
       value: booksAsync,
       data: (books) {
-        final selectedBookValue = selectedBookNumber.maybeWhen(
+        final selectedBookValue = selectedBookCode.maybeWhen(
           data: (value) => value,
-          orElse: () => books.isNotEmpty ? books.first.number : 1,
+          orElse: () => books.isNotEmpty ? books.first.code : 'JHN',
         );
         final selectedChapterValue = selectedChapter.maybeWhen(
           data: (value) => value,
@@ -32,7 +32,7 @@ class SimpleBookChapterPicker extends ConsumerWidget {
         }
 
         final selectedBook = books.firstWhere(
-          (book) => book.number == selectedBookValue,
+          (book) => book.code == selectedBookValue,
           orElse: () => books.first,
         );
         final clampedChapterValue = selectedChapterValue > selectedBook.chapterCount
@@ -48,17 +48,17 @@ class SimpleBookChapterPicker extends ConsumerWidget {
         return Row(
           children: [
             Expanded(
-              child: DropdownButtonFormField<int>(
+              child: DropdownButtonFormField<String>(
                 style: const TextStyle(fontSize: 14),
-                initialValue: selectedBook.number,
+                initialValue: selectedBook.code,
                 decoration: const InputDecoration(
                   labelText: 'Book',
                   border: OutlineInputBorder(),
                 ),
                 items: [
                   for (final book in books)
-                    DropdownMenuItem<int>(
-                      value: book.number,
+                    DropdownMenuItem<String>(
+                      value: book.code,
                       child: Text(book.name),
                     ),
                 ],

@@ -79,6 +79,7 @@ class UsfxLocalDataSource {
           final displayName = namesByCode[code] ?? e.value.title;
 
           return domain_book.Book(
+            code: code,
             number: e.key + 1,
             name: displayName,
             chapterCount: chapterCount,
@@ -94,10 +95,11 @@ class UsfxLocalDataSource {
   }
 
   Future<List<domain_verse.Verse>> getVerses({
-    required int bookNumber,
+    required String bookCode,
     required int chapterNumber,
   }) async {
-    final cacheKey = '$bookNumber:$chapterNumber';
+    final normalizedCode = bookCode.toUpperCase();
+    final cacheKey = '$normalizedCode:$chapterNumber';
     if (_versesCache.containsKey(cacheKey)) {
       return _versesCache[cacheKey]!;
     }
@@ -106,11 +108,14 @@ class UsfxLocalDataSource {
       await _initializeRepository();
 
       final books = await _repository.getBooks();
-      if (bookNumber < 1 || bookNumber > books.length) {
+      final bookIndex = books.indexWhere(
+        (book) => book.id.toUpperCase() == normalizedCode,
+      );
+      if (bookIndex == -1) {
         return [];
       }
 
-      final book = books[bookNumber - 1];
+      final book = books[bookIndex];
       final chapterCount = await _repository.getChapterCount(book.id);
       if (chapterNumber < 1 || chapterNumber > chapterCount) {
         return [];
@@ -122,7 +127,7 @@ class UsfxLocalDataSource {
           .entries
           .map(
             (e) => domain_verse.Verse(
-              bookNumber: bookNumber,
+              bookCode: normalizedCode,
               chapterNumber: chapterNumber,
               number: e.value.num,
               text: e.value.text,

@@ -14,7 +14,7 @@ Future<void> main() async {
   _configureLogging();
 
   final prefs = await SharedPreferences.getInstance();
-  final selectedBook = prefs.getInt('selectedBook') ?? 43;
+  final selectedBookCode = prefs.getString('selectedBookCode') ?? 'JHN';
   final selectedChapter = prefs.getInt('currentChapter') ?? 1;
   final cachedVerses = decodeVerses(
     prefs.getString(lastSelectedChapterVersesKey),
@@ -22,7 +22,7 @@ Future<void> main() async {
   final startupCache = cachedVerses == null
       ? null
       : StartupChapterCache(
-          bookNumber: selectedBook,
+          bookCode: selectedBookCode,
           chapterNumber: selectedChapter,
           verses: cachedVerses,
         );

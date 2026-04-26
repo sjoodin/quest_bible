@@ -1,9 +1,6 @@
 class Chapter {
-  const Chapter({
-    required this.bookNumber,
-    required this.number,
-  });
+  const Chapter({required this.bookCode, required this.number});
 
-  final int bookNumber;
+  final String bookCode;
   final int number;
 }

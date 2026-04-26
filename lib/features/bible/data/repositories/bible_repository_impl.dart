@@ -15,11 +15,11 @@ class BibleRepositoryImpl implements BibleRepository {
 
   @override
   Future<List<Verse>> getVerses({
-    required int bookNumber,
+    required String bookCode,
     required int chapterNumber,
   }) {
     return _localDataSource.getVerses(
-      bookNumber: bookNumber,
+      bookCode: bookCode,
       chapterNumber: chapterNumber,
     );
   }

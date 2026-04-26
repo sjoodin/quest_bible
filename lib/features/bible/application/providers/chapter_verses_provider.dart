@@ -13,11 +13,11 @@ part 'chapter_verses_provider.g.dart';
 Future<List<Verse>> chapterVerses(Ref ref) async {
   final repository = ref.watch(bibleRepositoryProvider);
   final prefs = await ref.watch(sharedPreferencesProvider.future);
-  final book = await ref.watch(selectedBookProvider.future);
+  final bookCode = await ref.watch(selectedBookProvider.future);
   final chapter = await ref.watch(currentChapterProvider.future);
   final books = await ref.watch(bookListProvider.future);
   final selectedBook = books.firstWhere(
-    (item) => item.number == book,
+    (item) => item.code == bookCode,
     orElse: () => books.first,
   );
   final effectiveChapter = chapter > selectedBook.chapterCount ? 1 : chapter;
@@ -26,7 +26,10 @@ Future<List<Verse>> chapterVerses(Ref ref) async {
     await ref.read(currentChapterProvider.notifier).setChapter(1);
   }
 
-  final cacheKey = chapterVersesCacheKey(book: book, chapter: effectiveChapter);
+  final cacheKey = chapterVersesCacheKey(
+    bookCode: selectedBook.code,
+    chapter: effectiveChapter,
+  );
   final cachedVerses = decodeVerses(prefs.getString(cacheKey));
   if (cachedVerses != null) {
     await prefs.setString(
@@ -37,7 +40,7 @@ Future<List<Verse>> chapterVerses(Ref ref) async {
   }
 
   final verses = await repository.getVerses(
-    bookNumber: book,
+    bookCode: selectedBook.code,
     chapterNumber: effectiveChapter,
   );
   final encodedVerses = encodeVerses(verses);

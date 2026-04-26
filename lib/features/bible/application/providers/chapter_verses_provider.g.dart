@@ -46,4 +46,4 @@ final class ChapterVersesProvider
   }
 }
 
-String _$chapterVersesHash() => r'c940d92cfab17e01a2fdc8614f27a24bb7fbcd90';
+String _$chapterVersesHash() => r'8b836475846f87d823cfa893143f87ecef4a8e20';

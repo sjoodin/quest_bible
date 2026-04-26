@@ -3,12 +3,12 @@ import 'package:quest_bible/features/bible/domain/entities/verse.dart';
 
 class StartupChapterCache {
   const StartupChapterCache({
-    required this.bookNumber,
+    required this.bookCode,
     required this.chapterNumber,
     required this.verses,
   });
 
-  final int bookNumber;
+  final String bookCode;
   final int chapterNumber;
   final List<Verse> verses;
 }

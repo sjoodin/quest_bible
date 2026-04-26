@@ -13,7 +13,7 @@ part of 'selected_book_provider.dart';
 final selectedBookProvider = SelectedBookProvider._();
 
 final class SelectedBookProvider
-    extends $AsyncNotifierProvider<SelectedBook, int> {
+    extends $AsyncNotifierProvider<SelectedBook, String> {
   SelectedBookProvider._()
     : super(
         from: null,
@@ -33,19 +33,19 @@ final class SelectedBookProvider
   SelectedBook create() => SelectedBook();
 }
 
-String _$selectedBookHash() => r'e2e2249781c98d73b7d23257107ad7ee4a9fbb77';
+String _$selectedBookHash() => r'654e2aab54a97e8d21ae93d992109f32fda37217';
 
-abstract class _$SelectedBook extends $AsyncNotifier<int> {
-  FutureOr<int> build();
+abstract class _$SelectedBook extends $AsyncNotifier<String> {
+  FutureOr<String> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<int>, int>;
+    final ref = this.ref as $Ref<AsyncValue<String>, String>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<int>, int>,
-              AsyncValue<int>,
+              AnyNotifier<AsyncValue<String>, String>,
+              AsyncValue<String>,
               Object?,
               Object?
             >;
