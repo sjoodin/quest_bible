@@ -58,13 +58,13 @@ const List<BibleSection> bibleSections = [
       'EST', // Esther
     ],
   ),
-  BibleSection(
-    id: 'section_4',
-    color: Color(0xFF2E7D32),
-    titleColor: Color(0xFF0B3D0B),
-    name: 'Historiska böckerna 3',
-    bookCodes: <String>[],
-  ),
+  // BibleSection(
+  //   id: 'section_4',
+  //   color: Color(0xFF2E7D32),
+  //   titleColor: Color(0xFF0B3D0B),
+  //   name: 'Historiska böckerna 3',
+  //   bookCodes: <String>[],
+  // ),
   BibleSection(
     id: 'section_5',
     color: Color(0xFF2196F3),
