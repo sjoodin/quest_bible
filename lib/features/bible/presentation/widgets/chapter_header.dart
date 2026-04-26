@@ -4,6 +4,7 @@ import 'package:quest_bible/features/bible/application/providers/book_list_provi
 import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
+import 'package:quest_bible/features/bible/presentation/utils.dart';
 
 class ChapterHeader extends ConsumerWidget {
   const ChapterHeader({super.key});
@@ -62,7 +63,6 @@ class ChapterHeader extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       decoration: BoxDecoration(
-        color: (sectionColor ?? colorScheme.surface),
         border: Border(
           bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
@@ -80,9 +80,26 @@ class ChapterHeader extends ConsumerWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: Theme.of(context).textTheme.headlineSmall),
+          // A box with the section color, to the left of the title, as a visual indicator of the section
+          Padding(
+            padding: const EdgeInsets.only(left: 15.0),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+          if (sectionColor != null)
+            Container(
+              width: 25,
+              height: 25,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: sectionColor,
+                shape: BoxShape.circle,
+              ),
+            ),
         ],
       ),
     );

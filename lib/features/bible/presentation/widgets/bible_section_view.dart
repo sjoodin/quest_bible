@@ -67,6 +67,7 @@ class BibleSectionView extends ConsumerWidget {
                         section.bookCodes,
                         booksByCode,
                         darken(section.color, 0.1),
+                        section.color,
                         constraints.maxWidth - 20,
                         onChapterSelected,
                         isChapterTouchArmed,
@@ -95,6 +96,7 @@ List<Widget> _buildBookRows(
   List<String> bookCodes,
   Map<String, Book> booksByCode,
   Color titleColor,
+  Color sectionColor,
   double availableWidth,
   Future<void> Function(String bookCode, int chapterNumber) onChapterSelected,
   bool isChapterTouchArmed,
@@ -112,6 +114,7 @@ List<Widget> _buildBookRows(
       bookCode: code,
       title: booksByCode[code]?.name ?? code,
       titleColor: titleColor,
+      sectionColor: sectionColor,
       chapterCount: booksByCode[code]?.chapterCount ?? 0,
       columnWidth: availableWidth,
       itemWidth: availableWidth,
@@ -161,6 +164,7 @@ class _SectionBookChapters extends StatelessWidget {
     required this.bookCode,
     required this.title,
     required this.titleColor,
+    required this.sectionColor,
     required this.chapterCount,
     required this.columnWidth,
     required this.itemWidth,
@@ -173,6 +177,7 @@ class _SectionBookChapters extends StatelessWidget {
   final String bookCode;
   final String title;
   final Color titleColor;
+  final Color sectionColor;
   final int chapterCount;
   final double columnWidth;
   final double itemWidth;
@@ -225,6 +230,7 @@ class _SectionBookChapters extends StatelessWidget {
                     height: itemSize,
                     child: _ChapterBox(
                       chapterNumber: chapterNumber,
+                      sectionColor: sectionColor,
                       isChapterTouchArmed: isChapterTouchArmed,
                       onChapterTouchConsumed: onChapterTouchConsumed,
                       onTap: () async {
@@ -249,12 +255,14 @@ class _SectionBookChapters extends StatelessWidget {
 class _ChapterBox extends StatefulWidget {
   const _ChapterBox({
     required this.chapterNumber,
+    required this.sectionColor,
     required this.onTap,
     required this.isChapterTouchArmed,
     this.onChapterTouchConsumed,
   });
 
   final int chapterNumber;
+  final Color sectionColor;
   final Future<void> Function() onTap;
   final bool isChapterTouchArmed;
   final VoidCallback? onChapterTouchConsumed;
@@ -340,7 +348,7 @@ class _ChapterBoxState extends State<_ChapterBox> {
   Widget build(BuildContext context) {
     final baseColor = Colors.white.withValues(alpha: 0.08);
     final hoverColor = Colors.white.withValues(alpha: 0.16);
-    final pressedColor = const Color.fromARGB(255, 255, 0, 0);
+    final pressedColor = widget.sectionColor;
 
     final backgroundColor = _isPressed
         ? pressedColor
