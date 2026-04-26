@@ -25,7 +25,10 @@ class BibleSectionView extends ConsumerWidget {
                 };
 
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 0,
+                  ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight,
@@ -36,6 +39,7 @@ class BibleSectionView extends ConsumerWidget {
                         for (final bookCode in section.bookCodes)
                           _SectionBookChapters(
                             title: booksByCode[bookCode]?.name ?? bookCode,
+                            titleColor: section.titleColor,
                             chapterCount:
                                 booksByCode[bookCode]?.chapterCount ?? 0,
                           ),
@@ -60,26 +64,34 @@ class BibleSectionView extends ConsumerWidget {
 }
 
 class _SectionBookChapters extends StatelessWidget {
-  const _SectionBookChapters({required this.title, required this.chapterCount});
+  const _SectionBookChapters({
+    required this.title,
+    required this.titleColor,
+    required this.chapterCount,
+  });
 
   final String title;
+  final Color titleColor;
   final int chapterCount;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
+          Container(
+            width: double.infinity,
+            color: titleColor,
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
           if (chapterCount > 0)
             GridView.builder(
               shrinkWrap: true,
@@ -87,8 +99,8 @@ class _SectionBookChapters extends StatelessWidget {
               itemCount: chapterCount,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 10,
-                crossAxisSpacing: 6,
-                mainAxisSpacing: 6,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 3,
                 childAspectRatio: 1,
               ),
               itemBuilder: (context, index) {
