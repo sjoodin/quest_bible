@@ -1,16 +1,18 @@
 import 'package:bible_parser_flutter/bible_parser_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart'
-    as domainBook;
+    as domain_book;
 import 'package:quest_bible/features/bible/domain/entities/verse.dart'
-    as domainVerse;
+    as domain_verse;
+import 'package:logging/logging.dart';
 import 'package:xml/xml.dart';
 
 class UsfxLocalDataSource {
-  static List<domainBook.Book>? _booksCache;
+  static final Logger _logger = Logger('UsfxLocalDataSource');
+  static List<domain_book.Book>? _booksCache;
   static late BibleRepository _repository;
   static bool _initialized = false;
-  static Map<String, List<domainVerse.Verse>> _versesCache = {};
+  static final Map<String, List<domain_verse.Verse>> _versesCache = {};
   static Map<String, String>? _bookNamesByCode;
 
   Future<Map<String, String>> _loadBookNamesByCode() async {
@@ -57,12 +59,12 @@ class UsfxLocalDataSource {
       await _repository.initialize('quest_bible.db');
       _initialized = true;
     } catch (e) {
-      print('Error initializing BibleRepository: $e');
+      _logger.severe('Error initializing BibleRepository: $e');
       rethrow;
     }
   }
 
-  Future<List<domainBook.Book>> getBooks() async {
+  Future<List<domain_book.Book>> getBooks() async {
     if (_booksCache != null) return _booksCache!;
 
     try {
@@ -76,7 +78,7 @@ class UsfxLocalDataSource {
           final code = e.value.id.toUpperCase();
           final displayName = namesByCode[code] ?? e.value.title;
 
-          return domainBook.Book(
+          return domain_book.Book(
             number: e.key + 1,
             name: displayName,
             chapterCount: chapterCount,
@@ -86,12 +88,12 @@ class UsfxLocalDataSource {
 
       return _booksCache!;
     } catch (e) {
-      print('Error loading books: $e');
+      _logger.warning('Error loading books: $e');
       return [];
     }
   }
 
-  Future<List<domainVerse.Verse>> getVerses({
+  Future<List<domain_verse.Verse>> getVerses({
     required int bookNumber,
     required int chapterNumber,
   }) async {
@@ -119,7 +121,7 @@ class UsfxLocalDataSource {
           .asMap()
           .entries
           .map(
-            (e) => domainVerse.Verse(
+            (e) => domain_verse.Verse(
               bookNumber: bookNumber,
               chapterNumber: chapterNumber,
               number: e.value.num,
@@ -131,7 +133,7 @@ class UsfxLocalDataSource {
       _versesCache[cacheKey] = domainVerses;
       return domainVerses;
     } catch (e) {
-      print('Error loading verses: $e');
+      _logger.warning('Error loading verses: $e');
       return [];
     }
   }
