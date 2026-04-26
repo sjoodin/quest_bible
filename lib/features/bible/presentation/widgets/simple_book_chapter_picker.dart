@@ -14,6 +14,9 @@ class SimpleBookChapterPicker extends ConsumerWidget {
     final booksAsync = ref.watch(bookListProvider);
     final selectedBookCode = ref.watch(selectedBookProvider);
     final selectedChapter = ref.watch(currentChapterProvider);
+    final dropdownTextStyle = Theme.of(
+      context,
+    ).textTheme.bodyMedium?.copyWith(fontSize: 12);
 
     return AsyncValueView<List<Book>>(
       value: booksAsync,
@@ -35,7 +38,8 @@ class SimpleBookChapterPicker extends ConsumerWidget {
           (book) => book.code == selectedBookValue,
           orElse: () => books.first,
         );
-        final clampedChapterValue = selectedChapterValue > selectedBook.chapterCount
+        final clampedChapterValue =
+            selectedChapterValue > selectedBook.chapterCount
             ? 1
             : selectedChapterValue;
 
@@ -49,7 +53,7 @@ class SimpleBookChapterPicker extends ConsumerWidget {
           children: [
             Expanded(
               child: DropdownButtonFormField<String>(
-                style: const TextStyle(fontSize: 14),
+                style: dropdownTextStyle,
                 initialValue: selectedBook.code,
                 decoration: const InputDecoration(
                   labelText: 'Book',
@@ -59,7 +63,7 @@ class SimpleBookChapterPicker extends ConsumerWidget {
                   for (final book in books)
                     DropdownMenuItem<String>(
                       value: book.code,
-                      child: Text(book.name),
+                      child: Text(book.name, style: dropdownTextStyle),
                     ),
                 ],
                 onChanged: (value) {
@@ -73,7 +77,7 @@ class SimpleBookChapterPicker extends ConsumerWidget {
             SizedBox(
               width: 80,
               child: DropdownButtonFormField<int>(
-                style: const TextStyle(fontSize: 14),
+                style: dropdownTextStyle,
                 initialValue: clampedChapterValue,
                 decoration: const InputDecoration(
                   labelText: 'Chapter',
@@ -81,7 +85,10 @@ class SimpleBookChapterPicker extends ConsumerWidget {
                 ),
                 items: [
                   for (int i = 1; i <= selectedBook.chapterCount; i++)
-                    DropdownMenuItem<int>(value: i, child: Text('$i')),
+                    DropdownMenuItem<int>(
+                      value: i,
+                      child: Text('$i', style: dropdownTextStyle),
+                    ),
                 ],
                 onChanged: (value) {
                   if (value == null) return;

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
@@ -7,10 +10,18 @@ import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
 
 class BibleSectionView extends ConsumerWidget {
-  const BibleSectionView({super.key, required this.section, this.onClose});
+  const BibleSectionView({
+    super.key,
+    required this.section,
+    this.onClose,
+    required this.isChapterTouchArmed,
+    this.onChapterTouchConsumed,
+  });
 
   final BibleSection section;
   final VoidCallback? onClose;
+  final bool isChapterTouchArmed;
+  final VoidCallback? onChapterTouchConsumed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,6 +68,8 @@ class BibleSectionView extends ConsumerWidget {
                         section.titleColor,
                         constraints.maxWidth - 20,
                         onChapterSelected,
+                        isChapterTouchArmed,
+                        onChapterTouchConsumed,
                       ),
                     ),
                   ),
@@ -83,6 +96,8 @@ List<Widget> _buildBookRows(
   Color titleColor,
   double availableWidth,
   Future<void> Function(String bookCode, int chapterNumber) onChapterSelected,
+  bool isChapterTouchArmed,
+  VoidCallback? onChapterTouchConsumed,
 ) {
   const maxGroupChapters = 9;
   final rows = <Widget>[];
@@ -101,6 +116,8 @@ List<Widget> _buildBookRows(
       itemWidth: availableWidth,
       addEmptyBlock: addEmptyBlock,
       onChapterSelected: onChapterSelected,
+      isChapterTouchArmed: isChapterTouchArmed,
+      onChapterTouchConsumed: onChapterTouchConsumed,
     );
   }
 
@@ -147,6 +164,8 @@ class _SectionBookChapters extends StatelessWidget {
     required this.columnWidth,
     required this.itemWidth,
     required this.onChapterSelected,
+    required this.isChapterTouchArmed,
+    this.onChapterTouchConsumed,
     this.addEmptyBlock = false,
   });
 
@@ -158,6 +177,8 @@ class _SectionBookChapters extends StatelessWidget {
   final double itemWidth;
   final Future<void> Function(String bookCode, int chapterNumber)
   onChapterSelected;
+  final bool isChapterTouchArmed;
+  final VoidCallback? onChapterTouchConsumed;
   final bool addEmptyBlock;
 
   @override
@@ -203,6 +224,8 @@ class _SectionBookChapters extends StatelessWidget {
                     height: itemSize,
                     child: _ChapterBox(
                       chapterNumber: chapterNumber,
+                      isChapterTouchArmed: isChapterTouchArmed,
+                      onChapterTouchConsumed: onChapterTouchConsumed,
                       onTap: () async {
                         await onChapterSelected(bookCode, chapterNumber);
                       },
@@ -223,10 +246,17 @@ class _SectionBookChapters extends StatelessWidget {
 }
 
 class _ChapterBox extends StatefulWidget {
-  const _ChapterBox({required this.chapterNumber, required this.onTap});
+  const _ChapterBox({
+    required this.chapterNumber,
+    required this.onTap,
+    required this.isChapterTouchArmed,
+    this.onChapterTouchConsumed,
+  });
 
   final int chapterNumber;
   final Future<void> Function() onTap;
+  final bool isChapterTouchArmed;
+  final VoidCallback? onChapterTouchConsumed;
 
   @override
   State<_ChapterBox> createState() => _ChapterBoxState();
@@ -235,6 +265,75 @@ class _ChapterBox extends StatefulWidget {
 class _ChapterBoxState extends State<_ChapterBox> {
   bool _isHovered = false;
   bool _isPressed = false;
+
+  bool _containsGlobalPosition(Offset globalPosition) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null || !renderBox.attached) {
+      return false;
+    }
+    final local = renderBox.globalToLocal(globalPosition);
+    return local.dx >= 0 &&
+        local.dy >= 0 &&
+        local.dx <= renderBox.size.width &&
+        local.dy <= renderBox.size.height;
+  }
+
+  void _handleGlobalPointerEvent(PointerEvent event) {
+    if (!mounted) return;
+
+    if (event is PointerUpEvent) {
+      final shouldTrigger = _containsGlobalPosition(event.position);
+      if (shouldTrigger && widget.isChapterTouchArmed) {
+        _setPressed(true);
+        widget.onChapterTouchConsumed?.call();
+        unawaited(widget.onTap());
+        Future<void>.delayed(const Duration(milliseconds: 120), () {
+          if (mounted) {
+            _setPressed(false);
+          }
+        });
+      } else {
+        _setPressed(false);
+      }
+      return;
+    }
+
+    if (event is PointerCancelEvent) {
+      _setPressed(false);
+    }
+  }
+
+  void _setPressed(bool value) {
+    if (_isPressed != value) {
+      setState(() {
+        _isPressed = value;
+      });
+    }
+  }
+
+  void _setHovered(bool value) {
+    if (_isHovered != value) {
+      setState(() {
+        _isHovered = value;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    GestureBinding.instance.pointerRouter.addGlobalRoute(
+      _handleGlobalPointerEvent,
+    );
+  }
+
+  @override
+  void dispose() {
+    GestureBinding.instance.pointerRouter.removeGlobalRoute(
+      _handleGlobalPointerEvent,
+    );
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -249,35 +348,30 @@ class _ChapterBoxState extends State<_ChapterBox> {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: widget.onTap,
-        onHover: (value) {
-          if (_isHovered != value) {
-            setState(() {
-              _isHovered = value;
-            });
-          }
+      child: MouseRegion(
+        onEnter: (_) => _setHovered(true),
+        onExit: (_) {
+          _setHovered(false);
+          _setPressed(false);
         },
-        onHighlightChanged: (value) {
-          if (_isPressed != value) {
-            setState(() {
-              _isPressed = value;
-            });
-          }
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            border: Border.all(color: Colors.white, width: borderWidth),
-          ),
-          child: Text(
-            '${widget.chapterNumber}',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: _isPressed ? FontWeight.w700 : FontWeight.w600,
+        child: Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: (_) => _setPressed(true),
+          onPointerCancel: (_) => _setPressed(false),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border.all(color: Colors.white, width: borderWidth),
+            ),
+            child: Text(
+              '${widget.chapterNumber}',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: _isPressed ? FontWeight.w700 : FontWeight.w600,
+              ),
             ),
           ),
         ),
