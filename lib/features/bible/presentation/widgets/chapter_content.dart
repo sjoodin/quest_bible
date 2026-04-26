@@ -27,19 +27,28 @@ class ChapterContent extends ConsumerWidget {
     final books = booksAsync.asData?.value;
     final sectionColor = _findSectionColorForBook(selectedBook);
     final chapterCount = _findChapterCountForBook(books, selectedBook);
+    final nextBook = _findNextBook(books, selectedBook);
     final hasNextChapter =
         selectedChapter != null &&
         chapterCount != null &&
         selectedChapter < chapterCount;
+    final showNextBook = !hasNextChapter && nextBook != null;
+    final nextBookSectionColor = _findSectionColorForBook(nextBook?.code);
+    final trailingAction = hasNextChapter
+        ? NextChapterWidget(
+            selectedChapterAsync: selectedChapterAsync,
+            sectionColor: sectionColor,
+          )
+        : (showNextBook
+              ? NextBookWidget(
+                  nextBook: nextBook,
+                  sectionColor: nextBookSectionColor,
+                )
+              : null);
 
     return versesAsync.when(
-      data: (verses) => _buildVersesList(
-        ref: ref,
-        verses: verses,
-        selectedChapterAsync: selectedChapterAsync,
-        hasNextChapter: hasNextChapter,
-        sectionColor: sectionColor,
-      ),
+      data: (verses) =>
+          _buildVersesList(verses: verses, trailingAction: trailingAction),
       error: (error, _) => Center(child: Text('Something went wrong: $error')),
       loading: () {
         final cacheMatchesSelection =
@@ -51,11 +60,8 @@ class ChapterContent extends ConsumerWidget {
 
         if (cacheMatchesSelection) {
           return _buildVersesList(
-            ref: ref,
             verses: startupCache.verses,
-            selectedChapterAsync: selectedChapterAsync,
-            hasNextChapter: hasNextChapter,
-            sectionColor: sectionColor,
+            trailingAction: trailingAction,
           );
         }
 
@@ -65,24 +71,18 @@ class ChapterContent extends ConsumerWidget {
   }
 
   Widget _buildVersesList({
-    required WidgetRef ref,
     required List<Verse> verses,
-    required AsyncValue<int> selectedChapterAsync,
-    required bool hasNextChapter,
-    required Color? sectionColor,
+    required Widget? trailingAction,
   }) {
     return ListView.separated(
-      itemCount: verses.length + (hasNextChapter ? 1 : 0),
+      itemCount: verses.length + (trailingAction == null ? 0 : 1),
       itemBuilder: (context, index) {
         if (index < verses.length) {
           return VerseTile(verse: verses[index]);
         } else {
           return Padding(
             padding: const EdgeInsets.all(16),
-            child: NextChapterWidget(
-              selectedChapterAsync: selectedChapterAsync,
-              sectionColor: sectionColor,
-            ),
+            child: trailingAction,
           );
         }
       },
@@ -113,6 +113,18 @@ class ChapterContent extends ConsumerWidget {
 
     return null;
   }
+
+  Book? _findNextBook(List<Book>? books, String? bookCode) {
+    if (books == null || bookCode == null) return null;
+
+    for (var i = 0; i < books.length; i++) {
+      if (books[i].code == bookCode) {
+        return i + 1 < books.length ? books[i + 1] : null;
+      }
+    }
+
+    return null;
+  }
 }
 
 class NextChapterWidget extends ConsumerWidget {
@@ -127,6 +139,11 @@ class NextChapterWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentChapter = selectedChapterAsync.maybeWhen(
+      data: (value) => value,
+      orElse: () => 1,
+    );
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: darken(
@@ -136,15 +153,40 @@ class NextChapterWidget extends ConsumerWidget {
         foregroundColor: Colors.white70,
       ),
       onPressed: () {
-        final currentChapter = selectedChapterAsync.maybeWhen(
-          data: (value) => value,
-          orElse: () => 1,
-        );
         ref
             .read(currentChapterProvider.notifier)
             .setChapter(currentChapter + 1);
       },
-      child: const Text('Next Chapter'),
+      child: Text('Next chapter: ${currentChapter + 1}'),
+    );
+  }
+}
+
+class NextBookWidget extends ConsumerWidget {
+  const NextBookWidget({
+    super.key,
+    required this.nextBook,
+    required this.sectionColor,
+  });
+
+  final Book nextBook;
+  final Color? sectionColor;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: darken(
+          sectionColor ?? Theme.of(context).colorScheme.surfaceTint,
+          0.2,
+        ),
+        foregroundColor: Colors.white70,
+      ),
+      onPressed: () async {
+        await ref.read(selectedBookProvider.notifier).setBook(nextBook.code);
+        await ref.read(currentChapterProvider.notifier).setChapter(1);
+      },
+      child: Text('Next Book: ${nextBook.name}'),
     );
   }
 }
