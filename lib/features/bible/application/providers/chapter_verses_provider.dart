@@ -9,8 +9,8 @@ part 'chapter_verses_provider.g.dart';
 @riverpod
 Future<List<Verse>> chapterVerses(Ref ref) async {
   final repository = ref.watch(bibleRepositoryProvider);
-  final book = ref.watch(selectedBookProvider);
-  final chapter = ref.watch(currentChapterProvider);
+  final book = await ref.watch(selectedBookProvider.future);
+  final chapter = await ref.watch(currentChapterProvider.future);
 
   return repository.getVerses(bookNumber: book, chapterNumber: chapter);
 }

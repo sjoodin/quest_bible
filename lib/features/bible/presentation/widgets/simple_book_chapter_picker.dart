@@ -18,12 +18,21 @@ class SimpleBookChapterPicker extends ConsumerWidget {
     return AsyncValueView<List<Book>>(
       value: booksAsync,
       data: (books) {
+        final selectedBookValue = selectedBookNumber.maybeWhen(
+          data: (value) => value,
+          orElse: () => books.isNotEmpty ? books.first.number : 1,
+        );
+        final selectedChapterValue = selectedChapter.maybeWhen(
+          data: (value) => value,
+          orElse: () => 1,
+        );
+
         if (books.isEmpty) {
           return const Center(child: Text('No books available'));
         }
 
         final selectedBook = books.firstWhere(
-          (book) => book.number == selectedBookNumber,
+          (book) => book.number == selectedBookValue,
           orElse: () => books.first,
         );
 
@@ -56,7 +65,7 @@ class SimpleBookChapterPicker extends ConsumerWidget {
               width: 80,
               child: DropdownButtonFormField<int>(
                 style: const TextStyle(fontSize: 14),
-                initialValue: selectedChapter,
+                initialValue: selectedChapterValue,
                 decoration: const InputDecoration(
                   labelText: 'Chapter',
                   border: OutlineInputBorder(),

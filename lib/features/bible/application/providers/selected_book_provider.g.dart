@@ -12,7 +12,8 @@ part of 'selected_book_provider.dart';
 @ProviderFor(SelectedBook)
 final selectedBookProvider = SelectedBookProvider._();
 
-final class SelectedBookProvider extends $NotifierProvider<SelectedBook, int> {
+final class SelectedBookProvider
+    extends $AsyncNotifierProvider<SelectedBook, int> {
   SelectedBookProvider._()
     : super(
         from: null,
@@ -30,29 +31,21 @@ final class SelectedBookProvider extends $NotifierProvider<SelectedBook, int> {
   @$internal
   @override
   SelectedBook create() => SelectedBook();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(int value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<int>(value),
-    );
-  }
 }
 
-String _$selectedBookHash() => r'6c8f92f02bed06c89ff0faf3741a51083b68fad9';
+String _$selectedBookHash() => r'e2e2249781c98d73b7d23257107ad7ee4a9fbb77';
 
-abstract class _$SelectedBook extends $Notifier<int> {
-  int build();
+abstract class _$SelectedBook extends $AsyncNotifier<int> {
+  FutureOr<int> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<int, int>;
+    final ref = this.ref as $Ref<AsyncValue<int>, int>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<int, int>,
-              int,
+              AnyNotifier<AsyncValue<int>, int>,
+              AsyncValue<int>,
               Object?,
               Object?
             >;

@@ -11,6 +11,7 @@ class ChapterContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final versesAsync = ref.watch(chapterVersesProvider);
+    final selectedChapterAsync = ref.watch(currentChapterProvider);
 
     return AsyncValueView(
       value: versesAsync,
@@ -25,16 +26,20 @@ class ChapterContent extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 child: ElevatedButton(
                   onPressed: () {
+                    final currentChapter = selectedChapterAsync.maybeWhen(
+                      data: (value) => value,
+                      orElse: () => 1,
+                    );
                     ref
                         .read(currentChapterProvider.notifier)
-                        .setChapter(ref.read(currentChapterProvider) + 1);
+                        .setChapter(currentChapter + 1);
                   },
                   child: const Text('Next Chapter'),
                 ),
               );
             }
           },
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, index) => const Divider(height: 1),
         );
       },
     );

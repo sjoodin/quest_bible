@@ -13,7 +13,7 @@ part of 'current_chapter_provider.dart';
 final currentChapterProvider = CurrentChapterProvider._();
 
 final class CurrentChapterProvider
-    extends $NotifierProvider<CurrentChapter, int> {
+    extends $AsyncNotifierProvider<CurrentChapter, int> {
   CurrentChapterProvider._()
     : super(
         from: null,
@@ -31,29 +31,21 @@ final class CurrentChapterProvider
   @$internal
   @override
   CurrentChapter create() => CurrentChapter();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(int value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<int>(value),
-    );
-  }
 }
 
-String _$currentChapterHash() => r'6c25614aa7abd8999d0de509f48dc35a3f8313a4';
+String _$currentChapterHash() => r'26663ea3c5266175445854490973e932a75ffe6f';
 
-abstract class _$CurrentChapter extends $Notifier<int> {
-  int build();
+abstract class _$CurrentChapter extends $AsyncNotifier<int> {
+  FutureOr<int> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<int, int>;
+    final ref = this.ref as $Ref<AsyncValue<int>, int>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<int, int>,
-              int,
+              AnyNotifier<AsyncValue<int>, int>,
+              AsyncValue<int>,
               Object?,
               Object?
             >;
