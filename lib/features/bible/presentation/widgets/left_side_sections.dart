@@ -7,10 +7,12 @@ class LeftSideSections extends StatefulWidget {
   const LeftSideSections({
     super.key,
     required this.onSectionPressed,
+    required this.isSectionViewOpen,
     this.onSectionReleased,
   });
 
   final ValueChanged<BibleSection> onSectionPressed;
+  final bool isSectionViewOpen;
   final VoidCallback? onSectionReleased;
 
   @override
@@ -20,6 +22,8 @@ class LeftSideSections extends StatefulWidget {
 class _LeftSideSectionsState extends State<LeftSideSections> {
   int? _activePointer;
   int? _lastTriggeredIndex;
+  bool _hasMovedSincePointerDown = false;
+  bool _openedOnActivePointerDown = false;
 
   bool _isPointerOverStrip(Offset localPosition, double sectionHeight) {
     final totalHeight = sectionHeight * bibleSections.length;
@@ -43,6 +47,8 @@ class _LeftSideSectionsState extends State<LeftSideSections> {
   void _clearPointerTracking() {
     _activePointer = null;
     _lastTriggeredIndex = null;
+    _hasMovedSincePointerDown = false;
+    _openedOnActivePointerDown = false;
   }
 
   @override
@@ -57,15 +63,20 @@ class _LeftSideSectionsState extends State<LeftSideSections> {
           behavior: HitTestBehavior.opaque,
           onPointerDown: (event) {
             _activePointer = event.pointer;
+            _hasMovedSincePointerDown = false;
+            _openedOnActivePointerDown = !widget.isSectionViewOpen;
             _triggerSectionFromPosition(event.localPosition, sectionHeight);
           },
           onPointerMove: (event) {
             if (_activePointer != event.pointer) return;
+            _hasMovedSincePointerDown = true;
             _triggerSectionFromPosition(event.localPosition, sectionHeight);
           },
           onPointerUp: (event) {
             if (_activePointer == event.pointer) {
-              if (_isPointerOverStrip(event.localPosition, sectionHeight)) {
+              if (_isPointerOverStrip(event.localPosition, sectionHeight) &&
+                  _hasMovedSincePointerDown &&
+                  !_openedOnActivePointerDown) {
                 widget.onSectionReleased?.call();
               }
               _clearPointerTracking();

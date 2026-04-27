@@ -4,7 +4,6 @@ import 'package:quest_bible/features/bible/presentation/widgets/bible_section_vi
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_content.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_header.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/left_side_sections.dart';
-import 'package:quest_bible/features/bible/presentation/widgets/simple_book_chapter_picker.dart';
 
 class BiblePage extends StatefulWidget {
   const BiblePage({super.key});
@@ -49,6 +48,7 @@ class _BiblePageState extends State<BiblePage> {
               children: [
                 LeftSideSections(
                   onSectionPressed: _openSectionOnTouchStart,
+                  isSectionViewOpen: _activeSection != null,
                   onSectionReleased: _closeSection,
                 ),
                 Expanded(
@@ -67,6 +67,7 @@ class _BiblePageState extends State<BiblePage> {
                 children: [
                   LeftSideSections(
                     onSectionPressed: _openSectionOnTouchStart,
+                    isSectionViewOpen: _activeSection != null,
                     onSectionReleased: _closeSection,
                   ),
                   Expanded(
