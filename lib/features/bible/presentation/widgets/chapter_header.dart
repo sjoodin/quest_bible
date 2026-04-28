@@ -47,8 +47,6 @@ class ChapterHeader extends ConsumerWidget {
       orElse: () => 'Chapter $selectedChapterValue',
     );
 
-    final colorScheme = Theme.of(context).colorScheme;
-
     Color? sectionColor;
     if (selectedBookCodeValue != null) {
       for (final section in bibleSections) {
@@ -64,7 +62,10 @@ class ChapterHeader extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
+          bottom: BorderSide(
+            color: Color.fromARGB(255, 117, 117, 117),
+            width: 1,
+          ),
         ),
         boxShadow: [
           BoxShadow(

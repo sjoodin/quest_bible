@@ -86,7 +86,8 @@ class ChapterContent extends ConsumerWidget {
           );
         }
       },
-      separatorBuilder: (_, index) => const Divider(height: 1),
+      separatorBuilder: (_, index) =>
+          const Divider(height: 1, color: Color.fromARGB(255, 117, 117, 117)),
     );
   }
 
