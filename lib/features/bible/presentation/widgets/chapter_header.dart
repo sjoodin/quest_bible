@@ -97,8 +97,18 @@ class ChapterHeader extends ConsumerWidget {
               height: 25,
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: sectionColor,
-                shape: BoxShape.circle,
+                color: darken(sectionColor, 0.1),
+                shape: BoxShape.rectangle,
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+              child: Center(
+                child: Text(
+                  "$selectedChapterValue",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ),
         ],
