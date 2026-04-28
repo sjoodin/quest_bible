@@ -19,43 +19,84 @@ class LeftSideSections extends ConsumerStatefulWidget {
   ConsumerState<LeftSideSections> createState() => _LeftSideSectionsState();
 }
 
-class _LeftSideSectionsState extends ConsumerState<LeftSideSections> {
-  int? _activePointer;
-  BibleSection? _pointerDownSection;
-  bool _wasActiveOnPointerDown = false;
+class _SectionInteractionState {
+  const _SectionInteractionState({
+    this.activePointerId,
+    this.pointerDownSectionId,
+    this.wasSectionActiveAtPointerDown = false,
+  });
 
-  void _onButtonPointerDown(PointerDownEvent event, BibleSection section) {
-    _activePointer = event.pointer;
-    _pointerDownSection = section;
-    _wasActiveOnPointerDown = ref.read(activeSectionProvider) == section;
+  final int? activePointerId;
+  final String? pointerDownSectionId;
+  final bool wasSectionActiveAtPointerDown;
+
+  bool isActivePointer(int pointerId) => activePointerId == pointerId;
+
+  _SectionInteractionState copyWith({
+    int? activePointerId,
+    String? pointerDownSectionId,
+    bool? wasSectionActiveAtPointerDown,
+  }) {
+    return _SectionInteractionState(
+      activePointerId: activePointerId,
+      pointerDownSectionId: pointerDownSectionId,
+      wasSectionActiveAtPointerDown:
+          wasSectionActiveAtPointerDown ?? this.wasSectionActiveAtPointerDown,
+    );
+  }
+}
+
+class _LeftSideSectionsState extends ConsumerState<LeftSideSections> {
+  _SectionInteractionState _interaction = const _SectionInteractionState();
+
+  void _setActiveSection(BibleSection section) {
     ref.read(activeSectionProvider.notifier).setSection(section);
   }
 
-  void _onButtonPointerMove(PointerMoveEvent event, BibleSection section) {
-    // Ignore other simultaneous move events from any pointer other than the one that started this interaction.
-    if (_activePointer != event.pointer) return;
-    if (ref.read(activeSectionProvider) != section) {
-      ref.read(activeSectionProvider.notifier).setSection(section);
+  void _clearActiveSection() {
+    ref.read(activeSectionProvider.notifier).clear();
+  }
+
+  void _handlePointerDownOnSection(int pointerId, BibleSection section) {
+    final currentActiveSection = ref.read(activeSectionProvider);
+    setState(() {
+      _interaction = _interaction.copyWith(
+        activePointerId: pointerId,
+        pointerDownSectionId: section.id,
+        wasSectionActiveAtPointerDown: currentActiveSection?.id == section.id,
+      );
+    });
+    _setActiveSection(section);
+  }
+
+  void _handlePointerMoveOverSection(int pointerId, BibleSection section) {
+    // Ignore move events from pointers other than the active interaction pointer.
+    if (!_interaction.isActivePointer(pointerId)) return;
+
+    if (ref.read(activeSectionProvider)?.id != section.id) {
+      _setActiveSection(section);
     }
   }
 
-  void _onButtonPointerUp(PointerUpEvent event, BibleSection section) {
-    if (_activePointer != event.pointer) return;
+  void _handlePointerUpOnSection(int pointerId, BibleSection section) {
+    if (!_interaction.isActivePointer(pointerId)) return;
 
     final shouldClose =
-        _wasActiveOnPointerDown && _pointerDownSection == section;
+        _interaction.wasSectionActiveAtPointerDown &&
+        _interaction.pointerDownSectionId == section.id;
     if (shouldClose) {
-      ref.read(activeSectionProvider.notifier).clear();
+      _clearActiveSection();
       widget.onSectionReleased?.call();
     }
 
-    _clearPointerTracking();
+    _resetInteraction();
   }
 
-  void _clearPointerTracking() {
-    _activePointer = null;
-    _pointerDownSection = null;
-    _wasActiveOnPointerDown = false;
+  void _resetInteraction() {
+    if (!mounted) return;
+    setState(() {
+      _interaction = const _SectionInteractionState();
+    });
   }
 
   @override
@@ -73,14 +114,17 @@ class _LeftSideSectionsState extends ConsumerState<LeftSideSections> {
             return BibleSectionButton(
               sectionHeight: sectionHeight,
               section: section,
-              activePointer: _activePointer,
-              isActive: _activePointer != null,
-              onPointerDown: (event) => _onButtonPointerDown(event, section),
-              onPointerMove: (event) => _onButtonPointerMove(event, section),
-              onPointerUp: (event) => _onButtonPointerUp(event, section),
-              onPointerCancel: (event) {
-                if (_activePointer == event.pointer) {
-                  _clearPointerTracking();
+              activePointerId: _interaction.activePointerId,
+              isInteracting: _interaction.activePointerId != null,
+              onPointerDown: (pointerId) =>
+                  _handlePointerDownOnSection(pointerId, section),
+              onPointerMove: (pointerId) =>
+                  _handlePointerMoveOverSection(pointerId, section),
+              onPointerUp: (pointerId) =>
+                  _handlePointerUpOnSection(pointerId, section),
+              onPointerCancel: (pointerId) {
+                if (_interaction.isActivePointer(pointerId)) {
+                  _resetInteraction();
                 }
               },
             );
@@ -96,8 +140,8 @@ class BibleSectionButton extends StatefulWidget {
     super.key,
     required this.sectionHeight,
     required this.section,
-    required this.activePointer,
-    required this.isActive,
+    required this.activePointerId,
+    required this.isInteracting,
     required this.onPointerDown,
     required this.onPointerMove,
     required this.onPointerUp,
@@ -106,12 +150,12 @@ class BibleSectionButton extends StatefulWidget {
 
   final double sectionHeight;
   final BibleSection section;
-  final int? activePointer;
-  final bool isActive;
-  final ValueChanged<PointerDownEvent> onPointerDown;
-  final ValueChanged<PointerMoveEvent> onPointerMove;
-  final ValueChanged<PointerUpEvent> onPointerUp;
-  final ValueChanged<PointerCancelEvent> onPointerCancel;
+  final int? activePointerId;
+  final bool isInteracting;
+  final ValueChanged<int> onPointerDown;
+  final ValueChanged<int> onPointerMove;
+  final ValueChanged<int> onPointerUp;
+  final ValueChanged<int> onPointerCancel;
 
   @override
   State<BibleSectionButton> createState() => _BibleSectionButtonState();
@@ -132,23 +176,23 @@ class _BibleSectionButtonState extends State<BibleSectionButton> {
   }
 
   void _handleGlobalPointerEvent(PointerEvent event) {
-    final activePointer = widget.activePointer;
-    if (activePointer == null || event.pointer != activePointer) {
+    final activePointerId = widget.activePointerId;
+    if (activePointerId == null || event.pointer != activePointerId) {
       return;
     }
 
     if (event is PointerMoveEvent && _containsGlobalPosition(event.position)) {
-      widget.onPointerMove(event);
+      widget.onPointerMove(event.pointer);
       return;
     }
 
     if (event is PointerUpEvent && _containsGlobalPosition(event.position)) {
-      widget.onPointerUp(event);
+      widget.onPointerUp(event.pointer);
       return;
     }
 
     if (event is PointerCancelEvent) {
-      widget.onPointerCancel(event);
+      widget.onPointerCancel(event.pointer);
     }
   }
 
@@ -172,10 +216,10 @@ class _BibleSectionButtonState extends State<BibleSectionButton> {
   Widget build(BuildContext context) {
     return Listener(
       behavior: HitTestBehavior.opaque,
-      onPointerDown: widget.onPointerDown,
-      onPointerCancel: widget.onPointerCancel,
+      onPointerDown: (event) => widget.onPointerDown(event.pointer),
+      onPointerCancel: (event) => widget.onPointerCancel(event.pointer),
       child: Opacity(
-        opacity: widget.isActive ? 1.0 : 0.5,
+        opacity: widget.isInteracting ? 1.0 : 0.5,
         child: Container(
           width: _sectionStripWidth,
           height: widget.sectionHeight,

@@ -30,7 +30,7 @@ class BibleSectionView extends ConsumerWidget {
 
     return SizedBox.expand(
       child: ColoredBox(
-        color: section.color,
+        color: const Color.fromARGB(255, 62, 62, 62),
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) => booksAsync.when(
@@ -66,7 +66,7 @@ class BibleSectionView extends ConsumerWidget {
                       children: _buildBookRows(
                         section.bookCodes,
                         booksByCode,
-                        darken(section.color, 0.1),
+                        Colors.transparent,
                         section.color,
                         constraints.maxWidth - 20,
                         onChapterSelected,
@@ -346,7 +346,7 @@ class _ChapterBoxState extends State<_ChapterBox> {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = Colors.white.withValues(alpha: 0.08);
+    final baseColor = darken(widget.sectionColor, 0.1);
     final hoverColor = Colors.white.withValues(alpha: 0.16);
     final pressedColor = widget.sectionColor;
 
