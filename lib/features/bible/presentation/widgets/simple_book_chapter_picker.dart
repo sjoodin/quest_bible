@@ -68,8 +68,9 @@ class SimpleBookChapterPicker extends ConsumerWidget {
                 ],
                 onChanged: (value) {
                   if (value == null) return;
-                  ref.read(selectedBookProvider.notifier).setBook(value);
-                  ref.read(currentChapterProvider.notifier).setChapter(1);
+                  ref
+                      .read(selectedBookProvider.notifier)
+                      .setBookAndChapter(bookCode: value, chapter: 1);
                 },
               ),
             ),

@@ -20,11 +20,9 @@ Future<List<Verse>> chapterVerses(Ref ref) async {
     (item) => item.code == bookCode,
     orElse: () => books.first,
   );
-  final effectiveChapter = chapter > selectedBook.chapterCount ? 1 : chapter;
-
-  if (effectiveChapter != chapter) {
-    await ref.read(currentChapterProvider.notifier).setChapter(1);
-  }
+  final effectiveChapter = chapter < 1
+      ? 1
+      : (chapter > selectedBook.chapterCount ? 1 : chapter);
 
   final cacheKey = chapterVersesCacheKey(
     bookCode: selectedBook.code,

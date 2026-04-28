@@ -184,8 +184,9 @@ class NextBookWidget extends ConsumerWidget {
         foregroundColor: Colors.white70,
       ),
       onPressed: () async {
-        await ref.read(selectedBookProvider.notifier).setBook(nextBook.code);
-        await ref.read(currentChapterProvider.notifier).setChapter(1);
+        await ref
+            .read(selectedBookProvider.notifier)
+            .setBookAndChapter(bookCode: nextBook.code, chapter: 1);
       },
       child: Text('Next Book: ${nextBook.name}'),
     );

@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
-import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
@@ -45,10 +44,7 @@ class BibleSectionView extends ConsumerWidget {
                 ) async {
                   await ref
                       .read(selectedBookProvider.notifier)
-                      .setBook(bookCode);
-                  await ref
-                      .read(currentChapterProvider.notifier)
-                      .setChapter(chapter);
+                      .setBookAndChapter(bookCode: bookCode, chapter: chapter);
                   onClose?.call();
                 }
 
