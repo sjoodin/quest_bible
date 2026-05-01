@@ -4,13 +4,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quest_bible/app/app.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
-import 'package:quest_bible/features/bible/presentation/widgets/bible_sections_header.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_container.dart';
 
 class BibleSectionView extends ConsumerWidget {
@@ -36,68 +34,57 @@ class BibleSectionView extends ConsumerWidget {
       child: ColoredBox(
         color: const Color.fromARGB(255, 62, 62, 62),
         child: SafeArea(
-          child: Column(
-            children: [
-              const BibleSectionsHeader(),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) => booksAsync.when(
-                    data: (books) {
-                      final booksByCode = <String, Book>{
-                        for (final book in books) book.code: book,
-                      };
+          child: LayoutBuilder(
+            builder: (context, constraints) => booksAsync.when(
+              data: (books) {
+                final booksByCode = <String, Book>{
+                  for (final book in books) book.code: book,
+                };
 
-                      Future<void> onChapterSelected(
-                        String bookCode,
-                        int chapter,
-                      ) async {
-                        await ref
-                            .read(selectedBookProvider.notifier)
-                            .setBookAndChapter(
-                              bookCode: bookCode,
-                              chapter: chapter,
-                            );
-                        onClose?.call();
-                      }
+                Future<void> onChapterSelected(
+                  String bookCode,
+                  int chapter,
+                ) async {
+                  await ref
+                      .read(selectedBookProvider.notifier)
+                      .setBookAndChapter(bookCode: bookCode, chapter: chapter);
+                  onClose?.call();
+                }
 
-                      return SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 0,
-                        ),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: _buildBookRows(
-                              section.bookCodes,
-                              booksByCode,
-                              Colors.transparent,
-                              section.color,
-                              hoveredChapter,
-                              constraints.maxWidth - 20,
-                              onChapterSelected,
-                              isChapterTouchArmed,
-                              onChapterTouchConsumed,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (error, _) => Center(
-                      child: Text(
-                        'Failed to load section books: $error',
-                        style: const TextStyle(color: Colors.white),
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 0,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _buildBookRows(
+                        section.bookCodes,
+                        booksByCode,
+                        Colors.transparent,
+                        section.color,
+                        hoveredChapter,
+                        constraints.maxWidth - 20,
+                        onChapterSelected,
+                        isChapterTouchArmed,
+                        onChapterTouchConsumed,
                       ),
                     ),
                   ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(
+                child: Text(
+                  'Failed to load section books: $error',
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

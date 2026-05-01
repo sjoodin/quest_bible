@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/active_section_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/bible_section_view.dart';
+import 'package:quest_bible/features/bible/presentation/widgets/book_and_chapter_headline.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_content.dart';
-import 'package:quest_bible/features/bible/presentation/widgets/chapter_header.dart';
+import 'package:quest_bible/features/bible/presentation/widgets/chapter_indicator.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/left_side_sections.dart';
 
 class BiblePage extends ConsumerStatefulWidget {
@@ -51,6 +52,18 @@ class _BiblePageState extends ConsumerState<BiblePage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color.fromARGB(255, 81, 79, 75),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              // Handle menu button press
+            },
+          ),
+          title: const BookAndChapterHeadline(),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [ChapterIndicator()],
+        ),
         body: Stack(
           children: [
             Row(
@@ -59,7 +72,6 @@ class _BiblePageState extends ConsumerState<BiblePage> {
                 Expanded(
                   child: Column(
                     children: [
-                      ChapterHeader(),
                       const SizedBox(height: 8),
                       const Expanded(child: ChapterContent()),
                     ],
