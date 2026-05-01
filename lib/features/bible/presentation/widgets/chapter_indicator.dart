@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quest_bible/features/bible/application/providers/active_section_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
@@ -28,11 +29,11 @@ class ChapterIndicator extends ConsumerWidget {
     final displayChapter =
         hoveredChapter?.chapterNumber ?? selectedChapterValue;
 
-    Color? sectionColor;
+    BibleSection? sectionToShow;
     if (displayBookCode != null) {
       for (final section in bibleSections) {
         if (section.bookCodes.contains(displayBookCode)) {
-          sectionColor = section.color;
+          sectionToShow = section;
           break;
         }
       }
@@ -41,11 +42,38 @@ class ChapterIndicator extends ConsumerWidget {
       width: 30,
       height: 30,
       margin: const EdgeInsets.only(right: 8),
-      child: ChapterContainer(
-        backgroundColor: sectionColor ?? Colors.grey,
-        borderWidth: 1,
-        isPressed: false,
-        chapterNumber: displayChapter,
+      child: GestureDetector(
+        onTapDown: (_) async {
+          final activeSection = ref.read(activeSectionProvider);
+          if (activeSection != null) {
+            //navigate to the book and chapter this chapter indicator is currently showing, then close the section view
+
+            // if the chapter indicator is showing a different chapter than the currently active one, navigate to that chapter
+            if (hoveredChapter == null) {
+              ref.read(activeSectionProvider.notifier).clear();
+            } else {
+              try {
+                await ref
+                    .read(selectedBookProvider.notifier)
+                    .setBookAndChapter(
+                      bookCode: displayBookCode ?? '',
+                      chapter: displayChapter,
+                    );
+              } finally {
+                ref.read(hoveredChapterProvider.notifier).clear();
+                ref.read(activeSectionProvider.notifier).clear();
+              }
+            }
+          } else {
+            ref.read(activeSectionProvider.notifier).setSection(sectionToShow);
+          }
+        },
+        child: ChapterContainer(
+          backgroundColor: sectionToShow?.color ?? Colors.grey,
+          borderWidth: 1,
+          isPressed: false,
+          chapterNumber: displayChapter,
+        ),
       ),
     );
   }

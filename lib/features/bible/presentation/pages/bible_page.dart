@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/active_section_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/bible_section_view.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/book_and_chapter_headline.dart';
@@ -20,6 +21,7 @@ class _BiblePageState extends ConsumerState<BiblePage> {
 
   void _closeSection() {
     ref.read(activeSectionProvider.notifier).clear();
+    ref.read(hoveredChapterProvider.notifier).clear();
     setState(() {
       _isChapterTouchArmed = false;
     });
@@ -59,7 +61,7 @@ class _BiblePageState extends ConsumerState<BiblePage> {
               // Handle menu button press
             },
           ),
-          title: const BookAndChapterHeadline(),
+          title: const BookHeadline(),
           backgroundColor: Colors.transparent,
           elevation: 0,
           actions: [ChapterIndicator()],
@@ -71,10 +73,7 @@ class _BiblePageState extends ConsumerState<BiblePage> {
                 LeftSideSections(onSectionReleased: _closeSection),
                 Expanded(
                   child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      const Expanded(child: ChapterContent()),
-                    ],
+                    children: [const Expanded(child: ChapterContent())],
                   ),
                 ),
               ],

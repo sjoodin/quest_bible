@@ -5,52 +5,66 @@ import 'package:quest_bible/features/bible/application/providers/current_chapter
 import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 
-class BookAndChapterHeadline extends ConsumerWidget {
-  const BookAndChapterHeadline({super.key});
+class BookHeadline extends ConsumerWidget {
+  const BookHeadline({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(bookListProvider);
     final hoveredChapter = ref.watch(hoveredChapterProvider);
     final selectedBookCode = ref.watch(selectedBookProvider);
-    final selectedChapter = ref.watch(currentChapterProvider);
 
     final selectedBookCodeValue = selectedBookCode.maybeWhen(
       data: (value) => value,
       orElse: () => null,
     );
+
+    final displayBookCode = hoveredChapter?.bookCode ?? selectedBookCodeValue;
+
+    final bookName = booksAsync.maybeWhen(
+      data: (books) {
+        for (final book in books) {
+          if (book.code == displayBookCode) {
+            return book.name;
+          }
+        }
+
+        if (books.isNotEmpty) {
+          return books.first.name;
+        }
+
+        return null;
+      },
+      orElse: () => null,
+    );
+
+    return Text(
+      bookName ?? 'Chapter',
+      style: Theme.of(context).textTheme.headlineSmall,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+class ChapterHeadline extends ConsumerWidget {
+  const ChapterHeadline({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hoveredChapter = ref.watch(hoveredChapterProvider);
+    final selectedChapter = ref.watch(currentChapterProvider);
+
     final selectedChapterValue = selectedChapter.maybeWhen(
       data: (value) => value,
       orElse: () => 1,
     );
 
-    final displayBookCode = hoveredChapter?.bookCode ?? selectedBookCodeValue;
     final displayChapter =
         hoveredChapter?.chapterNumber ?? selectedChapterValue;
 
-    final title = booksAsync.maybeWhen(
-      data: (books) {
-        String? selectedBookName;
-        for (final book in books) {
-          if (book.code == displayBookCode) {
-            selectedBookName = book.name;
-            break;
-          }
-        }
-
-        if (selectedBookName == null && books.isNotEmpty) {
-          selectedBookName = books.first.name;
-        }
-
-        if (selectedBookName == null) {
-          return 'Chapter $displayChapter';
-        }
-
-        return '$selectedBookName $displayChapter';
-      },
-      orElse: () => 'Chapter $displayChapter',
+    return Text(
+      '$displayChapter',
+      style: Theme.of(context).textTheme.headlineSmall,
     );
-
-    return Text(title, style: Theme.of(context).textTheme.headlineSmall);
   }
 }
