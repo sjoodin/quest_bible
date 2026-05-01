@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:quest_bible/app/app.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
@@ -207,7 +209,7 @@ class _SectionBookChapters extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
+                  fontFamily: GoogleFonts.lato().fontFamily,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -238,10 +240,7 @@ class _SectionBookChapters extends StatelessWidget {
               ],
             )
           else
-            const Text(
-              'No chapters available',
-              style: TextStyle(color: Colors.white70),
-            ),
+            const Text('No chapters available'),
         ],
       ),
     );
@@ -343,7 +342,7 @@ class _ChapterBoxState extends State<_ChapterBox> {
   @override
   Widget build(BuildContext context) {
     final baseColor = darken(widget.sectionColor, 0.1);
-    final hoverColor = Colors.white.withValues(alpha: 0.16);
+    final hoverColor = warmWhite.withValues(alpha: 0.16);
     final pressedColor = widget.sectionColor;
 
     final backgroundColor = _isPressed
@@ -368,13 +367,13 @@ class _ChapterBoxState extends State<_ChapterBox> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: backgroundColor,
-              border: Border.all(color: Colors.white, width: borderWidth),
+              border: Border.all(color: warmWhite, width: borderWidth),
             ),
             child: Text(
               '${widget.chapterNumber}',
               style: TextStyle(
-                color: Colors.white,
                 fontSize: 12,
+                fontFamily: GoogleFonts.lato().fontFamily,
                 fontWeight: _isPressed ? FontWeight.w700 : FontWeight.w600,
               ),
             ),

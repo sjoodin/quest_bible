@@ -99,15 +99,18 @@ class ChapterHeader extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: darken(sectionColor, 0.1),
                 shape: BoxShape.rectangle,
-                border: Border.all(color: Colors.white, width: 1),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 1,
+                ),
               ),
               child: Center(
                 child: Text(
                   "$selectedChapterValue",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white,
-                    fontSize: 12,
-                  ),
+                  //use onSurface
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 12),
                 ),
               ),
             ),

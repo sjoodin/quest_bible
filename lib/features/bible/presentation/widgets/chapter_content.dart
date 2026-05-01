@@ -86,8 +86,7 @@ class ChapterContent extends ConsumerWidget {
           );
         }
       },
-      separatorBuilder: (_, index) =>
-          const Divider(height: 1, color: Color.fromARGB(255, 117, 117, 117)),
+      separatorBuilder: (_, index) => Container(),
     );
   }
 
@@ -151,7 +150,6 @@ class NextChapterWidget extends ConsumerWidget {
           sectionColor ?? Theme.of(context).colorScheme.surfaceTint,
           0.2,
         ),
-        foregroundColor: Colors.white70,
       ),
       onPressed: () {
         ref
@@ -181,7 +179,6 @@ class NextBookWidget extends ConsumerWidget {
           sectionColor ?? Theme.of(context).colorScheme.surfaceTint,
           0.2,
         ),
-        foregroundColor: Colors.white70,
       ),
       onPressed: () async {
         await ref

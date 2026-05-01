@@ -50,7 +50,7 @@ class _BiblePageState extends ConsumerState<BiblePage> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 75, 81, 78),
+        backgroundColor: const Color.fromARGB(255, 81, 79, 75),
         body: Stack(
           children: [
             Row(
