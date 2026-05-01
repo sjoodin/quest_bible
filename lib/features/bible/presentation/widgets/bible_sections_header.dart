@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_container.dart';
 
-class ChapterHeader extends ConsumerWidget {
-  const ChapterHeader({super.key});
+class BibleSectionsHeader extends ConsumerWidget {
+  const BibleSectionsHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(bookListProvider);
+    final hoveredChapter = ref.watch(hoveredChapterProvider);
     final selectedBookCode = ref.watch(selectedBookProvider);
     final selectedChapter = ref.watch(currentChapterProvider);
 
@@ -24,11 +26,15 @@ class ChapterHeader extends ConsumerWidget {
       orElse: () => 1,
     );
 
+    final displayBookCode = hoveredChapter?.bookCode ?? selectedBookCodeValue;
+    final displayChapter =
+        hoveredChapter?.chapterNumber ?? selectedChapterValue;
+
     final title = booksAsync.maybeWhen(
       data: (books) {
         String? selectedBookName;
         for (final book in books) {
-          if (book.code == selectedBookCodeValue) {
+          if (book.code == displayBookCode) {
             selectedBookName = book.name;
             break;
           }
@@ -39,18 +45,18 @@ class ChapterHeader extends ConsumerWidget {
         }
 
         if (selectedBookName == null) {
-          return 'Chapter $selectedChapterValue';
+          return 'Chapter $displayChapter';
         }
 
-        return '$selectedBookName $selectedChapterValue';
+        return '$selectedBookName $displayChapter';
       },
-      orElse: () => 'Chapter $selectedChapterValue',
+      orElse: () => 'Chapter $displayChapter',
     );
 
     Color? sectionColor;
-    if (selectedBookCodeValue != null) {
+    if (displayBookCode != null) {
       for (final section in bibleSections) {
-        if (section.bookCodes.contains(selectedBookCodeValue)) {
+        if (section.bookCodes.contains(displayBookCode)) {
           sectionColor = section.color;
           break;
         }

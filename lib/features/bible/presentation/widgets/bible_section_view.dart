@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,8 @@ import 'package:quest_bible/features/bible/application/providers/hovered_chapter
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
+import 'package:quest_bible/features/bible/presentation/widgets/bible_sections_header.dart';
+import 'package:quest_bible/features/bible/presentation/widgets/chapter_container.dart';
 
 class BibleSectionView extends ConsumerWidget {
   const BibleSectionView({
@@ -35,57 +36,68 @@ class BibleSectionView extends ConsumerWidget {
       child: ColoredBox(
         color: const Color.fromARGB(255, 62, 62, 62),
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) => booksAsync.when(
-              data: (books) {
-                final booksByCode = <String, Book>{
-                  for (final book in books) book.code: book,
-                };
+          child: Column(
+            children: [
+              const BibleSectionsHeader(),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) => booksAsync.when(
+                    data: (books) {
+                      final booksByCode = <String, Book>{
+                        for (final book in books) book.code: book,
+                      };
 
-                Future<void> onChapterSelected(
-                  String bookCode,
-                  int chapter,
-                ) async {
-                  await ref
-                      .read(selectedBookProvider.notifier)
-                      .setBookAndChapter(bookCode: bookCode, chapter: chapter);
-                  onClose?.call();
-                }
+                      Future<void> onChapterSelected(
+                        String bookCode,
+                        int chapter,
+                      ) async {
+                        await ref
+                            .read(selectedBookProvider.notifier)
+                            .setBookAndChapter(
+                              bookCode: bookCode,
+                              chapter: chapter,
+                            );
+                        onClose?.call();
+                      }
 
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 0,
-                  ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: _buildBookRows(
-                        section.bookCodes,
-                        booksByCode,
-                        Colors.transparent,
-                        section.color,
-                        hoveredChapter,
-                        constraints.maxWidth - 20,
-                        onChapterSelected,
-                        isChapterTouchArmed,
-                        onChapterTouchConsumed,
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 0,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: _buildBookRows(
+                              section.bookCodes,
+                              booksByCode,
+                              Colors.transparent,
+                              section.color,
+                              hoveredChapter,
+                              constraints.maxWidth - 20,
+                              onChapterSelected,
+                              isChapterTouchArmed,
+                              onChapterTouchConsumed,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, _) => Center(
+                      child: Text(
+                        'Failed to load section books: $error',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(
-                child: Text(
-                  'Failed to load section books: $error',
-                  style: const TextStyle(color: Colors.white),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -119,7 +131,6 @@ List<Widget> _buildBookRows(
       sectionColor: sectionColor,
       hoveredChapter: hoveredChapter,
       chapterCount: booksByCode[code]?.chapterCount ?? 0,
-      columnWidth: availableWidth,
       itemWidth: availableWidth,
       addEmptyBlock: addEmptyBlock,
       onChapterSelected: onChapterSelected,
@@ -170,7 +181,6 @@ class _SectionBookChapters extends StatelessWidget {
     required this.sectionColor,
     required this.hoveredChapter,
     required this.chapterCount,
-    required this.columnWidth,
     required this.itemWidth,
     required this.onChapterSelected,
     required this.isChapterTouchArmed,
@@ -184,7 +194,6 @@ class _SectionBookChapters extends StatelessWidget {
   final Color sectionColor;
   final HoveredChapter? hoveredChapter;
   final int chapterCount;
-  final double columnWidth;
   final double itemWidth;
   final Future<void> Function(String bookCode, int chapterNumber)
   onChapterSelected;
@@ -288,9 +297,6 @@ class _ChapterBoxState extends ConsumerState<_ChapterBox> {
     final hovered = ref.read(hoveredChapterProvider);
     if (hovered?.bookCode == widget.bookCode &&
         hovered?.chapterNumber == widget.chapterNumber) {
-      log(
-        'Chapter ${widget.bookCode} ${widget.chapterNumber} is already hovered',
-      );
       return;
     }
 
@@ -422,24 +428,11 @@ class _ChapterBoxState extends ConsumerState<_ChapterBox> {
           behavior: HitTestBehavior.opaque,
           onPointerDown: (_) => _setPressed(true),
           onPointerCancel: (_) => _setPressed(false),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              border: Border.all(
-                color: warmWhite.withValues(alpha: 0.3),
-                width: borderWidth,
-              ),
-            ),
-            child: Text(
-              '${widget.chapterNumber}',
-              style: TextStyle(
-                fontSize: 12,
-                fontFamily: GoogleFonts.lato().fontFamily,
-                fontWeight: _isPressed ? FontWeight.w700 : FontWeight.w600,
-              ),
-            ),
+          child: ChapterContainer(
+            backgroundColor: backgroundColor,
+            borderWidth: borderWidth,
+            chapterNumber: widget.chapterNumber,
+            isPressed: _isPressed,
           ),
         ),
       ),

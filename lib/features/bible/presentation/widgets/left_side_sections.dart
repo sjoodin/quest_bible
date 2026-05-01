@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/active_section_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 
 // Left-side section strip for touch navigation:
@@ -55,6 +56,7 @@ class _LeftSideSectionsState extends ConsumerState<LeftSideSections> {
 
   void _clearActiveSection() {
     ref.read(activeSectionProvider.notifier).clear();
+    ref.read(hoveredChapterProvider.notifier).clear();
   }
 
   void _handlePointerDownOnSection(int pointerId, BibleSection section) {
