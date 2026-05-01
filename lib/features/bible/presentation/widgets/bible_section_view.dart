@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
+import 'package:quest_bible/features/bible/presentation/utils.dart'
+    show brighten;
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_container.dart';
 
 class BibleSectionView extends ConsumerWidget {
@@ -193,6 +196,7 @@ class _SectionBookChapters extends StatelessWidget {
     const crossAxisSpacing = 3.0;
     const mainAxisSpacing = 3.0;
     final itemSize = (itemWidth - crossAxisSpacing * 9) / 10;
+    final itemHeight = itemSize - 2;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
@@ -223,12 +227,13 @@ class _SectionBookChapters extends StatelessWidget {
               spacing: crossAxisSpacing,
               runSpacing: mainAxisSpacing,
               children: [
-                if (addEmptyBlock) SizedBox(width: itemSize, height: itemSize),
+                if (addEmptyBlock)
+                  SizedBox(width: itemSize, height: itemHeight),
                 ...List.generate(chapterCount, (index) {
                   final chapterNumber = index + 1;
                   return SizedBox(
                     width: itemSize,
-                    height: itemSize,
+                    height: itemHeight,
                     child: _ChapterBox(
                       bookCode: bookCode,
                       chapterNumber: chapterNumber,
@@ -395,13 +400,25 @@ class _ChapterBoxState extends ConsumerState<_ChapterBox> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedBookCode = ref
+        .watch(selectedBookProvider)
+        .maybeWhen(data: (value) => value, orElse: () => null);
+    final selectedChapter = ref
+        .watch(currentChapterProvider)
+        .maybeWhen(data: (value) => value, orElse: () => null);
+    final isSelected =
+        selectedBookCode == widget.bookCode &&
+        selectedChapter == widget.chapterNumber;
+
     final baseColor = widget.sectionColor;
     final pressedColor = widget.sectionColor;
 
-    final backgroundColor = widget.chapterIsHovered
+    final backgroundColor = isSelected
+        ? brighten(baseColor)
+        : widget.chapterIsHovered
         ? Colors.red
         : (_isPressed ? pressedColor : baseColor);
-    final borderWidth = _isPressed ? 1.5 : 1.0;
+    final borderWidth = _isPressed || isSelected ? 1.5 : 1.0;
 
     return Material(
       color: Colors.transparent,
@@ -420,6 +437,7 @@ class _ChapterBoxState extends ConsumerState<_ChapterBox> {
             borderWidth: borderWidth,
             chapterNumber: widget.chapterNumber,
             isPressed: _isPressed,
+            showSelected: isSelected,
           ),
         ),
       ),

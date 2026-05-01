@@ -9,11 +9,13 @@ class ChapterContainer extends StatelessWidget {
     required this.borderWidth,
     required this.isPressed,
     required this.chapterNumber,
+    required this.showSelected,
   });
 
   final Color backgroundColor;
   final double borderWidth;
   final bool isPressed;
+  final bool showSelected;
   final int chapterNumber;
 
   @override
@@ -24,7 +26,7 @@ class ChapterContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         border: Border.all(
-          color: warmWhite.withValues(alpha: 0.3),
+          color: warmWhite.withValues(alpha: showSelected ? 1 : 0.3),
           width: borderWidth,
         ),
       ),

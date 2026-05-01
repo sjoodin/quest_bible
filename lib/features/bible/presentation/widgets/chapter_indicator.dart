@@ -5,6 +5,7 @@ import 'package:quest_bible/features/bible/application/providers/current_chapter
 import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
+import 'package:quest_bible/features/bible/presentation/utils.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_container.dart';
 
 class ChapterIndicator extends ConsumerWidget {
@@ -16,6 +17,7 @@ class ChapterIndicator extends ConsumerWidget {
     final selectedBookCode = ref.watch(selectedBookProvider);
     final selectedChapter = ref.watch(currentChapterProvider);
 
+    final activeSection = ref.watch(activeSectionProvider);
     final selectedBookCodeValue = selectedBookCode.maybeWhen(
       data: (value) => value,
       orElse: () => null,
@@ -38,13 +40,16 @@ class ChapterIndicator extends ConsumerWidget {
         }
       }
     }
+    final showSelected =
+        hoveredChapter == null &&
+        activeSection != null &&
+        sectionToShow == activeSection;
     return Container(
       width: 30,
       height: 30,
       margin: const EdgeInsets.only(right: 8),
       child: GestureDetector(
         onTapDown: (_) async {
-          final activeSection = ref.read(activeSectionProvider);
           if (activeSection != null) {
             //navigate to the book and chapter this chapter indicator is currently showing, then close the section view
 
@@ -69,10 +74,13 @@ class ChapterIndicator extends ConsumerWidget {
           }
         },
         child: ChapterContainer(
-          backgroundColor: sectionToShow?.color ?? Colors.grey,
-          borderWidth: 1,
+          backgroundColor: showSelected
+              ? brighten(sectionToShow?.color ?? Colors.grey)
+              : sectionToShow?.color ?? Colors.grey,
+          borderWidth: showSelected ? 1.5 : 1.0,
           isPressed: false,
           chapterNumber: displayChapter,
+          showSelected: showSelected,
         ),
       ),
     );
