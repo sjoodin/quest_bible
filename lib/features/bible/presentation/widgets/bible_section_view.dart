@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quest_bible/app/app.dart';
 import 'package:quest_bible/features/bible/application/providers/book_list_provider.dart';
+import 'package:quest_bible/features/bible/application/providers/hovered_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
@@ -27,6 +29,7 @@ class BibleSectionView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(bookListProvider);
+    final hoveredChapter = ref.watch(hoveredChapterProvider);
 
     return SizedBox.expand(
       child: ColoredBox(
@@ -65,6 +68,7 @@ class BibleSectionView extends ConsumerWidget {
                         booksByCode,
                         Colors.transparent,
                         section.color,
+                        hoveredChapter,
                         constraints.maxWidth - 20,
                         onChapterSelected,
                         isChapterTouchArmed,
@@ -94,6 +98,7 @@ List<Widget> _buildBookRows(
   Map<String, Book> booksByCode,
   Color titleColor,
   Color sectionColor,
+  HoveredChapter? hoveredChapter,
   double availableWidth,
   Future<void> Function(String bookCode, int chapterNumber) onChapterSelected,
   bool isChapterTouchArmed,
@@ -112,6 +117,7 @@ List<Widget> _buildBookRows(
       title: booksByCode[code]?.name ?? code,
       titleColor: titleColor,
       sectionColor: sectionColor,
+      hoveredChapter: hoveredChapter,
       chapterCount: booksByCode[code]?.chapterCount ?? 0,
       columnWidth: availableWidth,
       itemWidth: availableWidth,
@@ -162,6 +168,7 @@ class _SectionBookChapters extends StatelessWidget {
     required this.title,
     required this.titleColor,
     required this.sectionColor,
+    required this.hoveredChapter,
     required this.chapterCount,
     required this.columnWidth,
     required this.itemWidth,
@@ -175,6 +182,7 @@ class _SectionBookChapters extends StatelessWidget {
   final String title;
   final Color titleColor;
   final Color sectionColor;
+  final HoveredChapter? hoveredChapter;
   final int chapterCount;
   final double columnWidth;
   final double itemWidth;
@@ -226,7 +234,11 @@ class _SectionBookChapters extends StatelessWidget {
                     width: itemSize,
                     height: itemSize,
                     child: _ChapterBox(
+                      bookCode: bookCode,
                       chapterNumber: chapterNumber,
+                      chapterIsHovered:
+                          hoveredChapter?.bookCode == bookCode &&
+                          hoveredChapter?.chapterNumber == chapterNumber,
                       sectionColor: sectionColor,
                       isChapterTouchArmed: isChapterTouchArmed,
                       onChapterTouchConsumed: onChapterTouchConsumed,
@@ -246,28 +258,63 @@ class _SectionBookChapters extends StatelessWidget {
   }
 }
 
-class _ChapterBox extends StatefulWidget {
+class _ChapterBox extends ConsumerStatefulWidget {
   const _ChapterBox({
+    required this.bookCode,
     required this.chapterNumber,
+    required this.chapterIsHovered,
     required this.sectionColor,
     required this.onTap,
     required this.isChapterTouchArmed,
     this.onChapterTouchConsumed,
   });
 
+  final String bookCode;
   final int chapterNumber;
+  final bool chapterIsHovered;
   final Color sectionColor;
   final Future<void> Function() onTap;
   final bool isChapterTouchArmed;
   final VoidCallback? onChapterTouchConsumed;
 
   @override
-  State<_ChapterBox> createState() => _ChapterBoxState();
+  ConsumerState<_ChapterBox> createState() => _ChapterBoxState();
 }
 
-class _ChapterBoxState extends State<_ChapterBox> {
-  bool _isHovered = false;
+class _ChapterBoxState extends ConsumerState<_ChapterBox> {
   bool _isPressed = false;
+
+  void _setChapterHovered() {
+    final hovered = ref.read(hoveredChapterProvider);
+    if (hovered?.bookCode == widget.bookCode &&
+        hovered?.chapterNumber == widget.chapterNumber) {
+      log(
+        'Chapter ${widget.bookCode} ${widget.chapterNumber} is already hovered',
+      );
+      return;
+    }
+
+    ref
+        .read(hoveredChapterProvider.notifier)
+        .setHovered(
+          HoveredChapter(
+            bookCode: widget.bookCode,
+            chapterNumber: widget.chapterNumber,
+          ),
+        );
+  }
+
+  void _clearChapterHoveredIfCurrent() {
+    final hovered = ref.read(hoveredChapterProvider);
+    if (hovered?.bookCode == widget.bookCode &&
+        hovered?.chapterNumber == widget.chapterNumber) {
+      ref.read(hoveredChapterProvider.notifier).clear();
+    }
+  }
+
+  bool _isTouchLike(PointerDeviceKind kind) {
+    return kind == PointerDeviceKind.touch || kind == PointerDeviceKind.stylus;
+  }
 
   bool _containsGlobalPosition(Offset globalPosition) {
     final renderBox = context.findRenderObject() as RenderBox?;
@@ -283,6 +330,29 @@ class _ChapterBoxState extends State<_ChapterBox> {
 
   void _handleGlobalPointerEvent(PointerEvent event) {
     if (!mounted) return;
+
+    if (event is PointerDownEvent && _isTouchLike(event.kind)) {
+      final isInside = _containsGlobalPosition(event.position);
+      _setPressed(isInside);
+      if (isInside) {
+        _setChapterHovered();
+      }
+      return;
+    }
+
+    if (event is PointerMoveEvent && _isTouchLike(event.kind)) {
+      if (!event.down) {
+        return;
+      }
+
+      final isInside = _containsGlobalPosition(event.position);
+      _setPressed(isInside);
+
+      if (isInside) {
+        _setChapterHovered();
+      }
+      return;
+    }
 
     if (event is PointerUpEvent) {
       final shouldTrigger = _containsGlobalPosition(event.position);
@@ -314,14 +384,6 @@ class _ChapterBoxState extends State<_ChapterBox> {
     }
   }
 
-  void _setHovered(bool value) {
-    if (_isHovered != value) {
-      setState(() {
-        _isHovered = value;
-      });
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -341,20 +403,19 @@ class _ChapterBoxState extends State<_ChapterBox> {
   @override
   Widget build(BuildContext context) {
     final baseColor = widget.sectionColor;
-    final hoverColor = warmWhite.withValues(alpha: 0.16);
     final pressedColor = widget.sectionColor;
 
-    final backgroundColor = _isPressed
-        ? pressedColor
-        : (_isHovered ? hoverColor : baseColor);
+    final backgroundColor = widget.chapterIsHovered
+        ? Colors.red
+        : (_isPressed ? pressedColor : baseColor);
     final borderWidth = _isPressed ? 1.5 : 1.0;
 
     return Material(
       color: Colors.transparent,
       child: MouseRegion(
-        onEnter: (_) => _setHovered(true),
+        onEnter: (_) => _setChapterHovered(),
         onExit: (_) {
-          _setHovered(false);
+          _clearChapterHoveredIfCurrent();
           _setPressed(false);
         },
         child: Listener(
