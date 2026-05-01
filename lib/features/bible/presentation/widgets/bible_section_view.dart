@@ -9,7 +9,6 @@ import 'package:quest_bible/features/bible/application/providers/book_list_provi
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
-import 'package:quest_bible/features/bible/presentation/utils.dart';
 
 class BibleSectionView extends ConsumerWidget {
   const BibleSectionView({
@@ -187,7 +186,7 @@ class _SectionBookChapters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const crossAxisSpacing = 5.0;
+    const crossAxisSpacing = 3.0;
     const mainAxisSpacing = 3.0;
     final itemSize = (itemWidth - crossAxisSpacing * 9) / 10;
 
@@ -341,7 +340,7 @@ class _ChapterBoxState extends State<_ChapterBox> {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = darken(widget.sectionColor, 0.1);
+    final baseColor = widget.sectionColor;
     final hoverColor = warmWhite.withValues(alpha: 0.16);
     final pressedColor = widget.sectionColor;
 
@@ -367,7 +366,10 @@ class _ChapterBoxState extends State<_ChapterBox> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: backgroundColor,
-              border: Border.all(color: warmWhite, width: borderWidth),
+              border: Border.all(
+                color: warmWhite.withValues(alpha: 0.3),
+                width: borderWidth,
+              ),
             ),
             child: Text(
               '${widget.chapterNumber}',

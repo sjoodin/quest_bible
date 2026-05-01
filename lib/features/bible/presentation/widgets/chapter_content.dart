@@ -8,7 +8,6 @@ import 'package:quest_bible/features/bible/application/providers/startup_chapter
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
 import 'package:quest_bible/features/bible/domain/entities/verse.dart';
-import 'package:quest_bible/features/bible/presentation/utils.dart';
 import 'package:quest_bible/features/bible/presentation/widgets/verse_tile.dart';
 
 class ChapterContent extends ConsumerWidget {
@@ -146,10 +145,8 @@ class NextChapterWidget extends ConsumerWidget {
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: darken(
-          sectionColor ?? Theme.of(context).colorScheme.surfaceTint,
-          0.2,
-        ),
+        backgroundColor:
+            sectionColor ?? Theme.of(context).colorScheme.surfaceTint,
       ),
       onPressed: () {
         ref
@@ -175,10 +172,8 @@ class NextBookWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: darken(
-          sectionColor ?? Theme.of(context).colorScheme.surfaceTint,
-          0.2,
-        ),
+        backgroundColor:
+            sectionColor ?? Theme.of(context).colorScheme.surfaceTint,
       ),
       onPressed: () async {
         await ref

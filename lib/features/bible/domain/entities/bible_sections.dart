@@ -14,10 +14,23 @@ class BibleSection {
   final List<String> bookCodes;
 }
 
+const green1 = Color(0xFF649765); //hsl(121.2, 20.3%, 49.2%)
+const green2 = Color(0xFF507850); //hsl(121.2, 20.3%, 39.2%)
+const green3 = Color(0xFF3B5A3C); //hsl(121.2, 20.3%, 29.2%)
+const blue1 = Color(0xFF4E88B8); //hsl(207.2, 42.7%, 51.4%)
+const blue2 = Color(0xFF3C6E97); //hsl(207.2, 42.7%, 41.4%)
+const blue3 = Color(0xFF2E5372); //hsl(207.2, 42.7%, 31.4%)
+const purple1 = Color(0xFF6B64B9); //hsl(244.9, 37.8%, 55.9%)
+const purple2 = Color(0xFF5049A1); //hsl(244.9, 37.8%, 45.9%)
+const purple3 = Color(0xFF3F397E); //hsl(244.9, 37.8%, 35.9%)
+const red = Color(0xFF803B36); //hsl(4.1, 40.7%, 35.7%)
+const orange = Color(0xFF9E601F); //hsl(30.7, 67.2%, 37.1%)
+const yellow = Color(0xFF7F692B); //hsl(44.3, 49.4%, 33.3%)
+
 const List<BibleSection> bibleSections = [
   BibleSection(
     id: 'section_1',
-    color: Color(0xFF66BB6A),
+    color: green1,
     name: 'Moseböckerna',
     bookCodes: <String>[
       'GEN', // Genesis
@@ -29,7 +42,8 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_2',
-    color: Color(0xFF43A047),
+    color: green2,
+    //color: Color(0xFF538555),
     name: 'Historiska böckerna 1',
     bookCodes: <String>[
       'JOS', // Joshua
@@ -42,7 +56,8 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_3',
-    color: Color(0xFF2E7D32),
+    color: green3,
+    //color: Color(0xFF375E38),
     name: 'Historiska böckerna 2',
     bookCodes: <String>[
       '2KI', // 2 Kings
@@ -55,7 +70,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_5',
-    color: Color(0xFF2196F3),
+    color: blue1,
     name: 'Poetiska böcker 1',
     bookCodes: <String>[
       'JOB', // Job
@@ -64,7 +79,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_6',
-    color: Color(0xFF90CAF9),
+    color: blue2,
     name: 'Poetiska böcker 2',
     bookCodes: <String>[
       'PRO', // Proverbs
@@ -74,7 +89,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_7',
-    color: Color(0xFF3F51B5),
+    color: purple1,
     name: 'Profetiska böcker',
     bookCodes: <String>[
       'ISA', // Isaiah
@@ -85,8 +100,8 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_8',
-    color: Color(0xFF9C27B0),
-    name: 'Section 8',
+    color: purple2,
+    name: 'Profetiska böcker 2',
     bookCodes: <String>[
       'DAN', // Daniel
       'HOS', // Hosea
@@ -105,7 +120,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_9',
-    color: Color(0xFFF44336),
+    color: red,
     name: 'Evangelierna och Apostlagärningarna',
     bookCodes: <String>[
       'MAT', // Matthew
@@ -117,7 +132,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_10',
-    color: Color.fromARGB(255, 255, 132, 0),
+    color: orange,
     name: 'Paulus brev',
     bookCodes: <String>[
       'ROM', // Romans
@@ -137,7 +152,7 @@ const List<BibleSection> bibleSections = [
   ),
   BibleSection(
     id: 'section_11',
-    color: Color.fromARGB(255, 178, 136, 0),
+    color: yellow,
     name: 'Andra brev och Uppenbarelseboken',
     bookCodes: <String>[
       'HEB', // Hebrews

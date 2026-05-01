@@ -3,7 +3,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quest_bible/features/bible/application/providers/active_section_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
-import 'package:quest_bible/features/bible/presentation/utils.dart';
 
 // Left-side section strip for touch navigation:
 // - pointer down on a section opens/switches active section,
@@ -224,7 +223,7 @@ class _BibleSectionButtonState extends State<BibleSectionButton> {
         child: Container(
           width: _sectionStripWidth,
           height: widget.sectionHeight,
-          color: darken(widget.section.color, 0.1),
+          color: widget.section.color,
         ),
       ),
     );

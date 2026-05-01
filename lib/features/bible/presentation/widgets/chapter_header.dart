@@ -4,7 +4,6 @@ import 'package:quest_bible/features/bible/application/providers/book_list_provi
 import 'package:quest_bible/features/bible/application/providers/current_chapter_provider.dart';
 import 'package:quest_bible/features/bible/application/providers/selected_book_provider.dart';
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
-import 'package:quest_bible/features/bible/presentation/utils.dart';
 
 class ChapterHeader extends ConsumerWidget {
   const ChapterHeader({super.key});
@@ -97,7 +96,7 @@ class ChapterHeader extends ConsumerWidget {
               height: 25,
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: darken(sectionColor, 0.1),
+                color: sectionColor,
                 shape: BoxShape.rectangle,
                 border: Border.all(
                   color: Theme.of(context).colorScheme.outline,
