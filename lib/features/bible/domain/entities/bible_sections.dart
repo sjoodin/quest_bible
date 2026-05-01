@@ -17,6 +17,7 @@ class BibleSection {
 const green1 = Color(0xFF649765); //hsl(121.2, 20.3%, 49.2%)
 const green2 = Color(0xFF507850); //hsl(121.2, 20.3%, 39.2%)
 const green3 = Color(0xFF3B5A3C); //hsl(121.2, 20.3%, 29.2%)
+const green4 = Color(0xFF2E4430); //hsl(121.2, 20.3%, 24.2%)
 const blue1 = Color(0xFF4E88B8); //hsl(207.2, 42.7%, 51.4%)
 const blue2 = Color(0xFF3C6E97); //hsl(207.2, 42.7%, 41.4%)
 const blue3 = Color(0xFF2E5372); //hsl(207.2, 42.7%, 31.4%)
@@ -37,32 +38,37 @@ const List<BibleSection> bibleSections = [
       'EXO', // Exodus
       'LEV', // Leviticus
       'NUM', // Numbers
-      'DEU', // Deuteronomy
     ],
   ),
   BibleSection(
     id: 'section_2',
     color: green2,
-    //color: Color(0xFF538555),
     name: 'Historiska böckerna 1',
     bookCodes: <String>[
+      'DEU', // Deuteronomy
       'JOS', // Joshua
       'JDG', // Judges
       'RUT', // Ruth
       '1SA', // 1 Samuel
-      '2SA', // 2 Samuel
-      '1KI', // 1 Kings
     ],
   ),
   BibleSection(
     id: 'section_3',
     color: green3,
-    //color: Color(0xFF375E38),
     name: 'Historiska böckerna 2',
     bookCodes: <String>[
+      '2SA', // 2 Samuel
+      '1KI', // 1 Kings
       '2KI', // 2 Kings
       '1CH', // 1 Chronicles
       '2CH', // 2 Chronicles
+    ],
+  ),
+  BibleSection(
+    id: 'section_4',
+    color: green4,
+    name: 'Historiska böckerna 3',
+    bookCodes: <String>[
       'EZR', // Ezra
       'NEH', // Nehemiah
       'EST', // Esther
