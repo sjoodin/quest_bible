@@ -11,7 +11,7 @@ import 'package:quest_bible/features/bible/application/providers/selected_book_p
 import 'package:quest_bible/features/bible/domain/entities/bible_sections.dart';
 import 'package:quest_bible/features/bible/domain/entities/book.dart';
 import 'package:quest_bible/features/bible/presentation/utils.dart'
-    show brighten;
+    show brighten, darken;
 import 'package:quest_bible/features/bible/presentation/widgets/chapter_container.dart';
 
 class BibleSectionView extends ConsumerWidget {
@@ -35,7 +35,7 @@ class BibleSectionView extends ConsumerWidget {
 
     return SizedBox.expand(
       child: ColoredBox(
-        color: const Color.fromARGB(255, 62, 62, 62),
+        color: darken(section.color, 0.2),
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) => booksAsync.when(
